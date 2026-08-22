@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Box, Typography, Card, CardActionArea, CardContent, Grid } from '@mui/material'
-import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
-import GrassOutlinedIcon from '@mui/icons-material/GrassOutlined'
-import AutoFixHighOutlinedIcon from '@mui/icons-material/AutoFixHighOutlined'
+import { Box, Typography, Card, CardActionArea, CardContent, Grid, Chip } from '@mui/material'
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
+import CheckroomOutlinedIcon from '@mui/icons-material/CheckroomOutlined'
+import VolunteerActivismOutlinedIcon from '@mui/icons-material/VolunteerActivismOutlined'
+import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined'
+import DirectionsBusOutlinedIcon from '@mui/icons-material/DirectionsBusOutlined'
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined'
 import WebOutlinedIcon from '@mui/icons-material/WebOutlined'
 import NextLink from 'next/link'
@@ -34,25 +36,40 @@ export default function Home() {
 
   const cards = [
     {
-      title: 'Inventory Management',
-      description: 'track and manage inventory',
-      icon: <Inventory2OutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      title: 'School Dashboard',
+      description: 'Data and Insights to explore your school\'s uniform collection, reuse and impact',
+      icon: <DashboardOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      href: '/analytics/school',
+      requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF'],
+    },
+    {
+      title: 'Uniform Tracker',
+      description: 'Tracking collection, reuse, repurposing and recycling of uniforms',
+      icon: <CheckroomOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
       href: '/inventory',
       requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF', 'PSG'],
     },
     {
-      title: 'Analytics Dashboards',
-      description: 'view and analyse donation metrics',
-      icon: <Inventory2OutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
-      href: '/analytics/overview',
-      requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF'],
+      title: 'Donation Drives',
+      description: 'Resources and info materials to organise and manage donation drives',
+      icon: <VolunteerActivismOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      href: '/donation-drives',
+      requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF', 'PSG'],
     },
     {
-      title: 'Carbon Tracker',
-      description: 'monitor carbon emissions data and generate reports',
-      icon: <GrassOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      title: 'Collaborations & Products',
+      description: 'Overview of sustainability projects and products made of repurposed uniforms',
+      icon: <Diversity3OutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      href: '/analytics/configuration/products',
+      requiredRoles: ['TCC_ADMIN'],
+    },
+    {
+      title: 'Greener Routes to School',
+      description: 'Supporting more sustainable journeys to and from school',
+      icon: <DirectionsBusOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
       href: 'https://greener-routes.hansen-lim.dev',
       requiredRoles: ['TCC_ADMIN'],
+      comingSoon: true,
     },
     {
       title: 'User Management',
@@ -83,13 +100,6 @@ export default function Home() {
       },
       requiredRoles: ['TCC_ADMIN'],
     },
-    {
-      title: 'Future Modules',
-      description: 'Stay tune for new modules',
-      icon: <AutoFixHighOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
-      href: '',
-      requiredRoles: [],
-    },
   ]
 
   const canAccessCard = (requiredRoles: string[]) => {
@@ -102,6 +112,9 @@ export default function Home() {
       <Box sx={{ mb: 6 }}>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1.5, color: '#1a1a1a' }}>
           {greeting}
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#333', fontSize: '1.1rem', mb: 3 }}>
+          Welcome to UTrack, a platform that helps schools and Parent Support Groups manage preloved school uniforms more effectively. Track donations, monitor reuse and repurposing activities, measure environmental and social impact, and generate insights to support more sustainable school communities. Together, we can extend the life of school uniforms, reduce textile waste, and make circularity visible, measurable and actionable.
         </Typography>
         <Typography variant="body1" sx={{ color: '#666', fontSize: '1.1rem' }}>
           What would you like to do today?
@@ -145,8 +158,9 @@ export default function Home() {
                   >
                     <CardContent>
                       {card.icon}
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1 }}>
                         {card.title}
+                        {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
                         {card.description}
@@ -157,8 +171,9 @@ export default function Home() {
                   <Box sx={{ height: '100%', p: 2, cursor: card.href && !hasAccess ? 'not-allowed' : 'default' }}>
                     <CardContent>
                       {card.icon}
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a' }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1 }}>
                         {card.title}
+                        {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
                         {card.description}

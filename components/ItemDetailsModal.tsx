@@ -345,7 +345,7 @@ export default function ItemDetailsModal({
       >
         {/* ── Header ── */}
         <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add New Piece</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Add New Pieces</h2>
           <button
             type="button"
             onClick={onClose}
@@ -610,7 +610,7 @@ export default function ItemDetailsModal({
             Cancel
           </CustomButton>
           <CustomButton onClick={handleSubmit} disabled={!canSubmit || submitting} className="flex-1">
-            {submitting ? 'Adding...' : 'Add Piece'}
+            {submitting ? 'Adding...' : 'Add Pieces'}
           </CustomButton>
         </div>
       </div>

@@ -9,9 +9,20 @@ import { getRoleFromSession, clearAuthSession, fetchUserProfile, mapRoleFromLega
 
 const APPS = [
   {
+    key: 'school-dashboard',
+    label: 'School Dashboard',
+    shortLabel: 'Dashboard',
+    href: '/analytics/school',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l9-9 9 9M4 10v10h16V10M9 20v-6h6v6" />
+      </svg>
+    ),
+  },
+  {
     key: 'inventory',
-    label: 'Inventory Management',
-    shortLabel: 'Inventory',
+    label: 'Uniform Tracker',
+    shortLabel: 'Uniform Tracker',
     href: '/inventory',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,13 +31,24 @@ const APPS = [
     ),
   },
   {
-    key: 'analytics',
-    label: 'Analytics',
-    shortLabel: 'Analytics',
-    href: '/analytics/overview',
+    key: 'donation-drives',
+    label: 'Donation Drives',
+    shortLabel: 'Donations',
+    href: '/donation-drives',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
+  },
+  {
+    key: 'collaborations',
+    label: 'Collaborations & Products',
+    shortLabel: 'Collaborations',
+    href: '/analytics/configuration/products',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
   },
@@ -62,7 +84,10 @@ export default function Header() {
   }, [pathname])
 
   const currentApp = useMemo(() => {
-    if (pathname?.startsWith('/analytics')) return APPS[1]
+    if (pathname?.startsWith('/analytics/configuration/products')) return APPS[3] // Collaborations
+    if (pathname?.startsWith('/analytics')) return APPS[0] // School Dashboard
+    if (pathname?.startsWith('/inventory') || pathname?.startsWith('/update-item-condition') || pathname?.startsWith('/file-approval') || pathname?.startsWith('/transaction') || pathname?.startsWith('/configuration')) return APPS[1] // Uniform Tracker
+    if (pathname?.startsWith('/donation-drives')) return APPS[2] // Donation Drives
     return APPS[0]
   }, [pathname])
 
@@ -183,21 +208,6 @@ export default function Header() {
                 </div>
               )}
 
-              {schoolLogoUrl && (
-                <>
-                  <div className="h-8 w-px bg-gray-300" aria-hidden="true" />
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    <Image
-                      src={schoolLogoUrl}
-                      alt={schoolName || 'School Logo'}
-                      width={40}
-                      height={40}
-                      className="object-contain"
-                      unoptimized // logo routes may not be standard optimized types
-                    />
-                  </div>
-                </>
-              )}
             </div>
 
             {/* Profile Dropdown */}

@@ -11,25 +11,25 @@ import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined'
 const CARDS = [
   {
     title: 'Uniform Overview',
-    description: 'View the uniforms from your school.',
+    description: 'View the uniforms from your school',
     href: '/inventory/uniform-overview',
     icon: CheckroomOutlinedIcon,
   },
   {
     title: 'Inventory Overview',
-    description: 'Check the overall status of school uniforms available for use.',
+    description: 'Check the overall status of uniforms for use',
     href: '/inventory/overview',
     icon: AssessmentOutlinedIcon,
   },
   {
     title: 'Inventory by Items',
-    description: 'View quantities of individual uniform items.',
+    description: 'View quantities of individual uniform items',
     href: '/inventory/items',
     icon: Inventory2OutlinedIcon,
   },
   {
-    title: 'Update Inventory Status',
-    description: 'Update the details and status of individual items.',
+    title: 'Update Inventory',
+    description: 'Update the details and status of individual items',
     href: '/update-item-condition',
     icon: EditNoteOutlinedIcon,
   },
@@ -50,10 +50,10 @@ export default function InventoryLandingPage() {
           variant="h4"
           sx={{ fontWeight: 700, color: 'var(--color-darker)' }}
         >
-          Uniform Inventory Tracker
+          Uniform Tracker
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Choose a section to get started.
+          Track the collection, reuse, repurposing and recycling of school uniforms
         </Typography>
       </Box>
 
@@ -70,9 +70,6 @@ export default function InventoryLandingPage() {
 
             <h2 className="text-lg font-bold text-gray-900 mb-2">{title}</h2>
 
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">
-              Description
-            </p>
             <p className="text-sm text-gray-600 mt-1">{description}</p>
           </Link>
         ))}

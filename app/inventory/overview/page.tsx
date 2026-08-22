@@ -32,25 +32,6 @@ const CORE_COLORS = {
   waste: "#888780",
 };
 
-const CORE_CONFIG = [
-  {
-    key: "schoolStock",
-    label: "For School",
-    bg: "bg-green-50",
-    text: "text-green-900",
-    sub: "text-green-600",
-    border: "border-green-200",
-  },
-  {
-    key: "psg",
-    label: "For PSG Activities",
-    bg: "bg-blue-50",
-    text: "text-blue-900",
-    sub: "text-blue-600",
-    border: "border-blue-200",
-  },
-];
-
 const toTitleCase = (str) => {
   if (!str) return str;
   return str.replace(
@@ -69,6 +50,38 @@ function formatCompactNumber(value) {
 export default function InventoryOverviewPage() {
   const [role, setRole] = useState("UNKNOWN");
   const isAdmin = role === "TCC_ADMIN";
+
+  const coreConfig = useMemo(() => {
+    const base = [
+      {
+        key: "schoolStock",
+        label: "For School",
+        bg: "bg-green-50",
+        text: "text-green-900",
+        sub: "text-green-600",
+        border: "border-green-200",
+      },
+      {
+        key: "psg",
+        label: "For PSG Activities",
+        bg: "bg-blue-50",
+        text: "text-blue-900",
+        sub: "text-blue-600",
+        border: "border-blue-200",
+      },
+    ];
+    if (isAdmin) {
+      base.push({
+        key: "repurposing",
+        label: "For Repurposing",
+        bg: "bg-amber-50",
+        text: "text-amber-900",
+        sub: "text-amber-600",
+        border: "border-amber-200",
+      });
+    }
+    return base;
+  }, [isAdmin]);
 
   // School list / selection (sourced from inventory balances, same as the
   // other inventory pages).
@@ -185,43 +198,37 @@ export default function InventoryOverviewPage() {
     (key) => {
       const o = collectionOverview;
       if (!o || !o.totalPieces) return 0;
-      return (o[key] / o.totalPieces) * o.totalWeightKg;
+      return ((o[key] || 0) / o.totalPieces) * o.totalWeightKg;
     },
     [collectionOverview],
   );
 
   const piecesDonut = useMemo(() => {
     if (!collectionOverview) return [];
-    return CORE_CONFIG.map((c) => ({
+    return coreConfig.map((c) => ({
       name: c.label,
-      value: collectionOverview[c.key],
+      value: collectionOverview[c.key] || 0,
       color: CORE_COLORS[c.key],
     })).filter((d) => d.value > 0);
-  }, [collectionOverview]);
+  }, [collectionOverview, coreConfig]);
 
   const weightDonut = useMemo(() => {
     if (!collectionOverview) return [];
-    return CORE_CONFIG.map((c) => ({
+    return coreConfig.map((c) => ({
       name: c.label,
       value: Number(kgFor(c.key).toFixed(2)),
       color: CORE_COLORS[c.key],
     })).filter((d) => d.value > 0);
-  }, [collectionOverview, kgFor]);
+  }, [collectionOverview, kgFor, coreConfig]);
 
-  // Totals/percentages relative to the shown categories (School + PSG).
+  // Totals relative to the shown categories.
   const available = useMemo(() => {
     const o = collectionOverview;
     if (!o) return null;
-    const pieces = CORE_CONFIG.reduce((s, c) => s + (o[c.key] || 0), 0);
-    const kg = CORE_CONFIG.reduce((s, c) => s + kgFor(c.key), 0);
-    const pct = Object.fromEntries(
-      CORE_CONFIG.map((c) => [
-        c.key,
-        pieces ? Math.round((o[c.key] / pieces) * 1000) / 10 : 0,
-      ]),
-    );
-    return { pieces, kg, pct };
-  }, [collectionOverview, kgFor]);
+    const pieces = coreConfig.reduce((s, c) => s + (o[c.key] || 0), 0);
+    const kg = coreConfig.reduce((s, c) => s + kgFor(c.key), 0);
+    return { pieces, kg };
+  }, [collectionOverview, kgFor, coreConfig]);
 
   // ── Inventory by item, grouped by category (one row per uniform) ─────────
   const itemRows = useMemo(() => {
@@ -229,27 +236,43 @@ export default function InventoryOverviewPage() {
     const map = new Map();
 
     items.forEach((it) => {
-      const key = it.categoryId ?? it.categoryName;
+      const catName = it.categoryName || "Unknown";
+      if (catName.toLowerCase() === "gym shorts") return;
+
+      const key = it.categoryId ?? catName;
       if (!map.has(key)) {
         map.set(key, {
           key,
-          categoryName: it.categoryName || "Unknown",
+          categoryName: catName,
           imageUrl: it.imageUrl || null,
           schoolStock: 0,
           psg: 0,
+          repurposing: 0,
         });
       }
       const entry = map.get(key);
       entry.schoolStock += it.schoolStock || 0;
       entry.psg += it.psg || 0;
+      if (isAdmin) {
+        entry.repurposing += it.repurposing || 0;
+      }
       if (!entry.imageUrl && it.imageUrl) entry.imageUrl = it.imageUrl;
     });
 
+    const categoryOrder = [
+      "Shirt", "Skirt/Pinafore", "Shorts", "Pants", "Polo Shirt",
+      "House Shirt", "PE Shirt", "PE Shorts", "Belt", "Tie", "Cap", "Others"
+    ];
+
     // Sort by canonical category display order
-    return Array.from(map.values()).sort(
-      (a, b) => getCategoryOrder(a.categoryName) - getCategoryOrder(b.categoryName)
-    );
-  }, [inventoryByItem]);
+    return Array.from(map.values()).sort((a, b) => {
+      let idxA = categoryOrder.indexOf(a.categoryName);
+      let idxB = categoryOrder.indexOf(b.categoryName);
+      if (idxA === -1) idxA = 999;
+      if (idxB === -1) idxB = 999;
+      return idxA - idxB;
+    });
+  }, [inventoryByItem, isAdmin]);
 
   if (loading) {
     return <LoadingSpinner message="Loading inventory overview..." />;
@@ -320,7 +343,7 @@ export default function InventoryOverviewPage() {
 
           {/* ── Current Inventory ───────────────────────────────────────── */}
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            Current Inventory
+            Current Inventory as of {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 mb-6">
@@ -339,7 +362,7 @@ export default function InventoryOverviewPage() {
                 </p>
               </div>
 
-              {CORE_CONFIG.map((cfg) => (
+              {coreConfig.map((cfg) => (
                 <div
                   key={cfg.key}
                   className={`rounded-xl border ${cfg.border} ${cfg.bg} p-3 flex flex-col items-center text-center`}
@@ -360,10 +383,7 @@ export default function InventoryOverviewPage() {
                       #
                     </p>
                     <p className={`text-xl font-bold ${cfg.text}`}>
-                      {collectionOverview[cfg.key].toLocaleString()}
-                    </p>
-                    <p className={`text-xs ${cfg.sub} mt-0.5`}>
-                      {available.pct[cfg.key]}%
+                      {(collectionOverview[cfg.key] || 0).toLocaleString()}
                     </p>
                   </div>
 
@@ -394,7 +414,7 @@ export default function InventoryOverviewPage() {
               />
 
               <div className="flex flex-col gap-1">
-                {CORE_CONFIG.map((cfg) => (
+                {coreConfig.map((cfg) => (
                   <span
                     key={cfg.key}
                     className="flex items-center gap-1.5 text-xs text-gray-500"
@@ -417,20 +437,15 @@ export default function InventoryOverviewPage() {
 
           {/* Legend */}
           <div className="flex items-center gap-4 mb-3">
-            <span className="flex items-center gap-2 text-xs text-gray-500">
-              <span
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ background: CORE_COLORS.schoolStock }}
-              />
-              For School
-            </span>
-            <span className="flex items-center gap-2 text-xs text-gray-500">
-              <span
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ background: CORE_COLORS.psg }}
-              />
-              For PSG Activities
-            </span>
+            {coreConfig.map((cfg) => (
+              <span key={cfg.key} className="flex items-center gap-2 text-xs text-gray-500">
+                <span
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ background: CORE_COLORS[cfg.key] }}
+                />
+                {cfg.label}
+              </span>
+            ))}
           </div>
 
           {itemRows.length === 0 ? (
@@ -498,9 +513,11 @@ function DonutChart({ title, data, center }) {
  * Layout: [category name — fixed width left] [stacked bar — fills right]
  */
 function StackedBar({ row }) {
-  const total = (row.schoolStock || 0) + (row.psg || 0);
+  const repurposing = row.repurposing || 0;
+  const total = (row.schoolStock || 0) + (row.psg || 0) + repurposing;
   const schoolPct = total ? (row.schoolStock / total) * 100 : 0;
   const psgPct = total ? (row.psg / total) * 100 : 0;
+  const repurposingPct = total ? (repurposing / total) * 100 : 0;
 
   return (
     <div className="flex items-center gap-3 px-3 py-2.5">
@@ -536,6 +553,17 @@ function StackedBar({ row }) {
                 >
                   <span className="px-1 text-xs font-semibold text-white whitespace-nowrap">
                     {row.psg.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {repurposingPct > 0 && (
+                <div
+                  className="h-full flex items-center justify-center overflow-hidden"
+                  style={{ width: `${repurposingPct}%`, background: CORE_COLORS.repurposing }}
+                  title={`For Repurposing: ${repurposing.toLocaleString()}`}
+                >
+                  <span className="px-1 text-xs font-semibold text-white whitespace-nowrap">
+                    {repurposing.toLocaleString()}
                   </span>
                 </div>
               )}

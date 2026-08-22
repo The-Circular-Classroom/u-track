@@ -285,7 +285,7 @@ export default function UniformOverviewPage() {
     rows.forEach((row) => {
       const school = row?.itemType?.school
       if (school?.id && !map.has(school.id)) {
-        map.set(school.id, { id: school.id, schoolName: school.schoolName })
+        map.set(school.id, { id: school.id, schoolName: school.schoolName, logoUrl: school.logoUrl })
       }
     })
     return Array.from(map.values()).sort((a, b) =>
@@ -312,7 +312,7 @@ export default function UniformOverviewPage() {
     const sorted = groupByCategoryGroup(scoped).sort(
       byCategoryOrder((c: any) => c?.groupKey)
     )
-    return expandByGender(sorted)
+    return expandByGender(sorted).filter((card: any) => card.totalQuantity > 0)
   }, [rows, selectedSchoolId])
 
   const filteredCards = useMemo(() => {
@@ -340,10 +340,8 @@ export default function UniformOverviewPage() {
     return selectedColor.items || []
   }, [selectedColor])
 
-  const selectedSchoolName = useMemo(
-    () =>
-      schools.find((s) => String(s.id) === String(selectedSchoolId))
-        ?.schoolName || '',
+  const selectedSchool = useMemo(
+    () => schools.find((s) => String(s.id) === String(selectedSchoolId)),
     [schools, selectedSchoolId]
   )
 
@@ -412,11 +410,19 @@ export default function UniformOverviewPage() {
         >
           Uniform Overview
         </Typography>
+        <Typography variant="body1" sx={{ color: 'text.secondary', mt: 1 }}>
+          View the uniforms from your school
+        </Typography>
       </Box>
 
-      <h2 className="text-xl font-bold text-gray-900 mb-4">
-        {toTitleCase(selectedSchoolName)}
-      </h2>
+      <div className="flex items-center gap-3 mb-4">
+        {selectedSchool?.logoUrl && (
+          <img src={selectedSchool.logoUrl} alt="School Logo" className="h-8 w-auto object-contain" />
+        )}
+        <h2 className="text-xl font-bold text-gray-900">
+          {toTitleCase(selectedSchool?.schoolName)}
+        </h2>
+      </div>
 
       {viewLevel !== 'cards' && selectedCategory && (
         <div className="mb-4 overflow-x-auto">
@@ -481,7 +487,7 @@ export default function UniformOverviewPage() {
             </FormControl>
           )}
 
-          {(viewLevel === 'colors' || selectedSchoolId) && (
+          {(viewLevel === 'colors' || selectedSchoolId) && isAdmin && (
             <div className="w-full sm:w-[320px]">
               <TextField
                 size="small"

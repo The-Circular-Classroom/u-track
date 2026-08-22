@@ -940,7 +940,7 @@ export default function UploadCSVModal({ isOpen, onClose, selectedSchool }) {
           <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                Upload Donation File
+                Add New Pieces
               </h2>
               <p className="text-sm text-gray-500 mt-0.5">
                 School: <span className="font-medium text-gray-700">{schoolLabel}</span>

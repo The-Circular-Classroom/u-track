@@ -30,9 +30,8 @@ export const CATEGORY_ORDER = [
   'house_shirt',
   'pe_shirt',
   'pe_shorts',
-  'gym_shorts',
-  'belt',
   'tie',
+  'belt',
   'cap',
   'others',
 ];
@@ -46,7 +45,6 @@ export const CATEGORY_DISPLAY_LABELS = {
   house_shirt:         'House Shirt',
   pe_shirt:            'PE Shirt',
   pe_shorts:           'PE Shorts',
-  gym_shorts:          'Gym Shorts',
   belt:                'Belt',
   tie:                 'Tie',
   cap:                 'Cap',
@@ -76,7 +74,6 @@ export function groupCategoryName(categoryName) {
   if (name === 'house_shirt'    || name === 'house shirt')    return 'house_shirt';
   if (name === 'pe_shirt'       || name === 'pe shirt')       return 'pe_shirt';
   if (name === 'pe_shorts'      || name === 'pe shorts')      return 'pe_shorts';
-  if (name === 'gym_shorts'     || name === 'gym shorts')     return 'gym_shorts';
   if (name === 'belt')  return 'belt';
   if (name === 'tie')   return 'tie';
   if (name === 'cap')   return 'cap';

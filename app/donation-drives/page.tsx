@@ -245,27 +245,27 @@ const RESOURCES = [
   {
     key: "handbook",
     title: "Donation Drive Handbook",
-    description: "Step-by-step guide to planning and running a drive.",
+    description: "Step-by-step guide to planning and running a drive",
     icon: <LuBookOpen size={22} />,
     href: "#",
   },
   {
     key: "promo",
     title: "Promo Material",
-    description: "Posters, banners and templates to spread the word.",
+    description: "Posters, banners and templates to spread the word",
     icon: <FaBullhorn size={20} />,
     href: "#",
   },
   {
     key: "inventory",
     title: "Inventory Support",
-    description: "Boxes, uniforms and logistics resources.",
+    description: "Boxes, uniforms and logistics resources",
     icon: <FaBoxesStacked size={20} />,
     href: "#",
   },
 ];
 
-function ResourcesPanel() {
+function ResourcesPanel({ onAddDrive, onDownloadTemplate }) {
   return (
     <Box
       sx={{
@@ -278,6 +278,19 @@ function ResourcesPanel() {
         height: "max-content",
       }}
     >
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
+        <CustomButton onClick={onAddDrive} icon={<FaPlus />}>
+          Add New Drive
+        </CustomButton>
+        <CustomButton
+          variant="outline"
+          onClick={onDownloadTemplate}
+          icon={<DownloadIcon sx={{ fontSize: 18 }} />}
+        >
+          Download Template
+        </CustomButton>
+      </Box>
+
       <Typography
         variant="h6"
         fontWeight={700}
@@ -386,6 +399,9 @@ export default function DonationDrivePage() {
   const [schoolName, setSchoolName] = useState("");
   const [userId, setUserId] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  
+  const [filterSchool, setFilterSchool] = useState("");
+
 
   
   // Determine role and resolve school ID / user ID from /api/users/me
@@ -528,6 +544,24 @@ export default function DonationDrivePage() {
     [isAdmin],
   );
 
+  const uniqueSchools = useMemo(() => {
+    if (!isAdmin) return [];
+    const map = new Map();
+    for (const d of donationDrives) {
+      if (d.school?.id && d.school?.schoolName) {
+        map.set(d.school.id, d.school.schoolName);
+      }
+    }
+    return Array.from(map, ([id, name]) => ({ id, name })).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }, [donationDrives, isAdmin]);
+
+  const filteredDrives = useMemo(() => {
+    if (!isAdmin || !filterSchool) return donationDrives;
+    return donationDrives.filter((d) => String(d.school?.id) === String(filterSchool));
+  }, [donationDrives, isAdmin, filterSchool]);
+
   // Title shown below the page heading: "All Schools" for admins,
   // otherwise the logged-in user's school name (resolved from profile or drives)
   const schoolTitle = useMemo(() => {
@@ -537,6 +571,12 @@ export default function DonationDrivePage() {
     if (!resolved) return "";
     return resolved.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   }, [isAdmin, schoolName, donationDrives]);
+
+  const selectClass =
+    "w-full px-3 py-2 pr-10 border border-gray-300 rounded-md text-sm text-gray-900 bg-white " +
+    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none " +
+    "bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMS41TDYgNi41TDExIDEuNSIgc3Ryb2tlPSIjNkI3MjgwIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')] " +
+    "bg-no-repeat bg-[center_right_0.75rem]";
 
   // ── Main render ────────────────────────────────────────────────────────────
   return (
@@ -568,24 +608,28 @@ export default function DonationDrivePage() {
             </Typography>
           )}
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {donationDrives.length} total drive
-            {donationDrives.length !== 1 ? "s" : ""} — manage and track your
+            {filteredDrives.length} total drive
+            {filteredDrives.length !== 1 ? "s" : ""} — manage and track your
             donation drive campaigns
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5 }}>
-          <CustomButton
-            variant="outline"
-            onClick={() => setTemplateModalOpen(true)}
-            icon={<DownloadIcon sx={{ fontSize: 18 }} />}
-          >
-            Download Template
-          </CustomButton>
-          <CustomButton onClick={() => setModalOpen(true)} icon={<FaPlus />}>
-            Add New Drive
-          </CustomButton>
-        </Box>
+        {isAdmin && (
+          <Box sx={{ minWidth: 200 }}>
+            <select
+              value={filterSchool}
+              onChange={(e) => setFilterSchool(e.target.value)}
+              className={selectClass}
+            >
+              <option value="">All Schools</option>
+              {uniqueSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </Box>
+        )}
       </Box>
 
       {/* Loading */}
@@ -628,7 +672,7 @@ export default function DonationDrivePage() {
           }}
         >
           <DataGrid
-            rows={donationDrives}
+            rows={filteredDrives}
             columns={columns}
             getRowId={(row) => row.id}
             loading={loading}
@@ -660,7 +704,10 @@ export default function DonationDrivePage() {
         </Box>
 
           {/* Resources panel */}
-          <ResourcesPanel />
+          <ResourcesPanel
+            onAddDrive={() => setModalOpen(true)}
+            onDownloadTemplate={() => setTemplateModalOpen(true)}
+          />
         </Box>
       )}
 

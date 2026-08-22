@@ -7,7 +7,7 @@ export default function ItemTypeCard({ itemType, isAdmin, onClick }) {
   const totalQuantity = itemType?.totalQuantity || 0;
   const categoryName = itemType?.category?.categoryName || 'Unknown Category';
   const displayTotal = isAdmin
-    ? (itemType?.totalQuantity || 0)
+    ? (itemType?.schoolStock || 0) + (itemType?.psgActivities || 0) + (itemType?.forRepurposing || 0)
     : (itemType?.schoolStock || 0) + (itemType?.psgActivities || 0);
 
   /**
@@ -134,8 +134,7 @@ export default function ItemTypeCard({ itemType, isAdmin, onClick }) {
           <p>For PSG Activities: {(itemType?.psgActivities || 0).toLocaleString()}</p>
           {isAdmin && (
             <>
-              <p>For Repurposing by TCC: {(itemType?.forRepurposing || 0).toLocaleString()}</p>
-              <p>For Recycling/Disposal: {(itemType?.recyclingDisposal || 0).toLocaleString()}</p>
+              <p>For Repurposing: {(itemType?.forRepurposing || 0).toLocaleString()}</p>
             </>
           )}
         </div>

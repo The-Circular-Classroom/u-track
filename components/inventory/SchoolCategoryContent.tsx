@@ -8,16 +8,12 @@ import { getCategoryOrder, getSubCategoryOrder } from "@/utils/categoryOrder";
 import { getUniformImageUrl } from "@/lib/inventory/uniformImageUrl";
 
 import { Box, Typography } from "@mui/material";
-import { FaPlus, FaCheck } from "react-icons/fa6";
+import { FaCheck } from "react-icons/fa6";
 import { TbCancel } from "react-icons/tb";
 
 import ItemTypeCard from "@/components/ItemTypeCard";
-import AddMethodModal from "@/components/AddMethodModal";
-import ItemDetailsModal from "@/components/ItemDetailsModal";
-import UploadCSVModal from "@/components/UploadCSVModal";
 import SnackbarAlert from "@/components/SnackbarAlert";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import CustomButton from "@/components/ui/CustomButton";
 import CustomErrorButton from "@/components/ui/CustomErrorButton";
 
 function toSlug(name) {
@@ -36,18 +32,10 @@ export default function SchoolItemTypesContent() {
   const isAdmin = role === "TCC_ADMIN";
 
   const [school, setSchool] = useState(null);
-  const [schools] = useState([]);
   const [itemTypes, setItemTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Add modal state
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [itemDetailsModalOpen, setItemDetailsModalOpen] = useState(false);
-  const [uploadCSVModalOpen, setUploadCSVModalOpen] = useState(false);
-  const [psgItems, setPsgItems] = useState([]);
-  const [donationDrives, setDonationDrives] = useState([]);
-  const [itemDetailsSubmitting, setItemDetailsSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -72,39 +60,6 @@ export default function SchoolItemTypesContent() {
     } catch (_) {}
     router.replace("/inventory/items");
   }, [role, router]);
-
-  // Fetch preset data for add modal
-  const fetchPresetData = useCallback(
-    async (schoolId) => {
-      try {
-        const url = `/api/inventory/item-types?schoolId=${schoolId}&pageSize=100`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Failed to fetch item type data");
-        const result = await res.json();
-        setPsgItems(result.itemTypes || result.data || []);
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [],
-  );
-
-  const fetchDonationDrives = useCallback(
-    async (schoolId) => {
-      if (!schoolId) return;
-      try {
-        const res = await fetch(
-          `/api/donation-drive/school/${schoolId}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch donation drives");
-        const result = await res.json();
-        setDonationDrives(result.data || result || []);
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [],
-  );
 
   const fetchItemTypes = useCallback(async () => {
     if (!school?.id) return;
@@ -200,89 +155,14 @@ export default function SchoolItemTypesContent() {
     } finally {
       setLoading(false);
     }
-  }, [apiUrl, school]);
+  }, [school]);
 
   useEffect(() => {
     if (school?.id) {
       fetchItemTypes();
-      fetchPresetData(school.id);
-      fetchDonationDrives(school.id);
     }
-  }, [school, fetchItemTypes, fetchPresetData, fetchDonationDrives]);
+  }, [school, fetchItemTypes]);
 
-  // Add modal handlers
-  const closeAddModal = () => {
-    setAddModalOpen(false);
-    setItemDetailsModalOpen(false);
-  };
-  const chooseAddManually = () => {
-    setAddModalOpen(false);
-    setItemDetailsModalOpen(true);
-  };
-  const chooseUploadExcel = () => {
-    setAddModalOpen(false);
-    setUploadCSVModalOpen(true);
-  };
-
-  const handleAddNewItemSubmit = useCallback(
-    async (formData) => {
-      setItemDetailsSubmitting(true);
-      try {
-        const res = await fetch("/api/donations/drives/donate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            category_name: formData.category_name,
-            primary_colour: formData.primary_colour,
-            primary_colour_hex: formData.primary_colour_hex,
-            secondary_colour: formData.secondary_colour,
-            secondary_colour_hex: formData.secondary_colour_hex,
-            size_name: formData.size_name,
-            quantity: formData.quantity,
-            to_status: formData.to_status,
-            item_type_id: formData.item_type_id,
-            school_id: formData.school_id,
-            donation_drive_id: formData.donation_drive_id,
-            transaction_type: "DonationIn",
-            to_stored_at: formData.to_stored_at,
-            remarks: "Manual donation",
-          }),
-        });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          setSnackbar({
-            open: true,
-            message: errData.message || "Failed to add new piece",
-            severity: "error",
-          });
-          throw new Error(errData.message || "Failed to add new piece");
-        }
-
-        setSnackbar({
-          open: true,
-          message: "Items added successfully",
-          severity: "success",
-        });
-        setItemDetailsModalOpen(false);
-        fetchItemTypes();
-        if (school?.id) fetchPresetData(school.id);
-      } catch (err) {
-        setSnackbar({
-          open: true,
-          message: err?.message || "Failed to add new piece",
-          severity: "error",
-        });
-      } finally {
-        setItemDetailsSubmitting(false);
-      }
-    },
-    [apiUrl, school, fetchItemTypes, fetchPresetData],
-  );
-
-  const canOpenAdd = !!school?.id && (isAdmin || psgItems.length > 0);
   const schoolName = school?.schoolName || "";
 
   if (loading) return <LoadingSpinner message="Loading items..." />;
@@ -296,6 +176,8 @@ export default function SchoolItemTypesContent() {
       </Box>
     );
 
+  const currentDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
   return (
     <Box sx={{ p: 4 }}>
       {/* ── Page title + Add button ── */}
@@ -303,29 +185,22 @@ export default function SchoolItemTypesContent() {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "flex-start",
+          alignItems: "flex-end",
           mb: 2,
         }}
       >
-        <Typography
-          variant="h4"
-          fontWeight={700}
-          sx={{ color: "var(--color-darker)" }}
-        >
-          Inventory by Items
-        </Typography>
-
-        {canOpenAdd && (
-          <Box sx={{ display: "flex", gap: 1.5 }}>
-            <CustomButton
-              onClick={() => setAddModalOpen(true)}
-              icon={<FaPlus />}
-              className="w-full sm:w-auto"
-            >
-              Add New Piece
-            </CustomButton>
-          </Box>
-        )}
+        <Box>
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            sx={{ color: "var(--color-darker)" }}
+          >
+            Inventory by Items
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Current Inventory as of {currentDate}
+          </Typography>
+        </Box>
       </Box>
 
       {/* ── Breadcrumb: Schools / School Name ── */}
@@ -384,41 +259,6 @@ export default function SchoolItemTypesContent() {
         message={snackbar.message}
         icon={snackbar.severity === "success" ? <FaCheck /> : <TbCancel />}
         severity={snackbar.severity}
-      />
-
-      <AddMethodModal
-        isOpen={addModalOpen}
-        onClose={closeAddModal}
-        onAddManually={chooseAddManually}
-        onUploadExcel={chooseUploadExcel}
-        showManual={isAdmin}
-      />
-
-      <ItemDetailsModal
-        isOpen={itemDetailsModalOpen}
-        onClose={() => setItemDetailsModalOpen(false)}
-        psgItems={psgItems}
-        selectedSchool={school}
-        donationDrives={donationDrives}
-        onSubmit={handleAddNewItemSubmit}
-        submitting={itemDetailsSubmitting}
-        isAdmin={isAdmin}
-        schools={schools}
-        selectedItemType={null}
-        selectedColor={null}
-        onSchoolChange={(newId) =>
-          setSchool((prev) =>
-            prev && typeof prev === "object"
-              ? { ...prev, id: newId }
-              : { id: newId },
-          )
-        }
-      />
-
-      <UploadCSVModal
-        isOpen={uploadCSVModalOpen}
-        onClose={() => setUploadCSVModalOpen(false)}
-        selectedSchool={school}
       />
     </Box>
   );

@@ -23,6 +23,9 @@ import SnackbarAlert from "@/components/SnackbarAlert";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import CustomButton from "@/components/ui/CustomButton";
 import CustomErrorButton from "@/components/ui/CustomErrorButton";
+import AddMethodModal from "@/components/AddMethodModal";
+import ItemDetailsModal from "@/components/ItemDetailsModal";
+import UploadCSVModal from "@/components/UploadCSVModal";
 
 export default function UpdateItemCondition() {
   const router = useRouter();
@@ -35,10 +38,22 @@ export default function UpdateItemCondition() {
   const [newCondition, setNewCondition] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
 
+  // ── Modals for Add New Pieces ───────────────────────────────────────────────
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [manualAddOpen, setManualAddOpen] = useState(false);
+  const [csvUploadOpen, setCsvUploadOpen] = useState(false);
+
   // ── Modal filter state ──────────────────────────────────────────────────────
   const [filterStatus, setFilterStatus] = useState("");
   const [filterLocation, setFilterLocation] = useState("");
   const [filterSchool, setFilterSchool] = useState("");
+  
+  const [pageFilterSchool, setPageFilterSchool] = useState("");
+
+  const displayedSelectedItems = useMemo(() => {
+    if (!isAdmin || !pageFilterSchool) return selectedItems;
+    return selectedItems.filter(item => String(item.school?.id || item.itemType?.school?.id) === String(pageFilterSchool));
+  }, [selectedItems, isAdmin, pageFilterSchool]);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -525,7 +540,7 @@ export default function UpdateItemCondition() {
   if (error) {
     return (
       <CustomErrorButton
-        title="Error Loading Update Item Status page"
+        title="Error Loading Update Inventory page"
         message={error}
         onRetry={fetchAllInventoryItems}
       />
@@ -549,13 +564,31 @@ export default function UpdateItemCondition() {
             fontWeight={700}
             sx={{ color: "var(--color-darker)" }}
           >
-            Update Item Condition
+            Update Inventory
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Select items from inventory and set their new status or storage
-            location
+            Update the details and status of individual items
           </Typography>
         </Box>
+
+        {isAdmin && (
+          <Box sx={{ minWidth: 200 }}>
+            <select
+              value={pageFilterSchool}
+              onChange={(e) => setPageFilterSchool(e.target.value)}
+              className={selectClass}
+            >
+              <option value="">All Schools</option>
+              {uniqueSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name
+                    .toLowerCase()
+                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                </option>
+              ))}
+            </select>
+          </Box>
+        )}
       </Box>
 
       {/* Content */}
@@ -566,16 +599,26 @@ export default function UpdateItemCondition() {
             <p className="text-base font-semibold text-gray-900">
               Items to Update
             </p>
-            <CustomButton
-              onClick={handleModalOpen}
-              icon={<FaPlus />}
-              className="w-full sm:w-auto"
-            >
-              Select Item
-            </CustomButton>
+            <div className="flex gap-2">
+              <CustomButton
+                variant="outline"
+                onClick={() => setAddModalOpen(true)}
+                icon={<FaPlus />}
+                className="w-full sm:w-auto"
+              >
+                Add New Pieces
+              </CustomButton>
+              <CustomButton
+                onClick={handleModalOpen}
+                icon={<FaPlus />}
+                className="w-full sm:w-auto"
+              >
+                Select Item
+              </CustomButton>
+            </div>
           </div>
 
-          {selectedItems.length === 0 ? (
+          {displayedSelectedItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center">
               <p className="text-gray-900 font-medium mb-1">
                 No items selected
@@ -586,7 +629,7 @@ export default function UpdateItemCondition() {
             </div>
           ) : (
             <div className="space-y-4">
-              {selectedItems.map((item) => {
+              {displayedSelectedItems.map((item) => {
                 const condition = newCondition[item.id];
                 const bothSet = condition?.status && condition?.storedAt;
                 const removeQty = condition?.quantity || 1;
@@ -1202,6 +1245,33 @@ export default function UpdateItemCondition() {
           </Backdrop>
         )}
       </div>
+
+      <AddMethodModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onAddManually={() => {
+          setAddModalOpen(false);
+          setManualAddOpen(true);
+        }}
+        onUploadExcel={() => {
+          setAddModalOpen(false);
+          setCsvUploadOpen(true);
+        }}
+        onDownloadTemplate={() => {
+          setAddModalOpen(false);
+          // Insert download template logic if applicable
+        }}
+      />
+      <ItemDetailsModal
+        isOpen={manualAddOpen}
+        onClose={() => setManualAddOpen(false)}
+        isAdmin={isAdmin}
+        schools={uniqueSchools.map(s => ({ id: s.id, schoolName: s.name }))}
+      />
+      <UploadCSVModal
+        isOpen={csvUploadOpen}
+        onClose={() => setCsvUploadOpen(false)}
+      />
     </Box>
   );
 }

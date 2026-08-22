@@ -70,7 +70,7 @@ export default function UniformOverviewCard({ itemType, onClick }) {
         </div>
 
         {/* Label block — each sub-category on its own line */}
-        <div className="px-2.5 py-2 border-t border-gray-100 flex flex-col gap-0.5">
+        <div className="px-2.5 py-2 border-t border-gray-100 flex flex-col gap-0.5 text-center">
           {subCategories.map((sub, i) => (
             <span
               key={sub.rawName || i}
@@ -107,7 +107,7 @@ export default function UniformOverviewCard({ itemType, onClick }) {
       </div>
 
       {/* Label */}
-      <div className="px-2.5 py-2 border-t border-gray-100 flex flex-col gap-1.5">
+      <div className="px-2.5 py-2 border-t border-gray-100 flex flex-col gap-1.5 text-center">
         <h3 className="font-semibold text-sm text-gray-900 truncate" title={singleLabel}>
           {singleLabel}
         </h3>

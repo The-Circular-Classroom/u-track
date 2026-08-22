@@ -2,7 +2,7 @@
 // apps/frontend/src/components/InventoryBreakdownCard.js
 
 import Image from "next/image";
-import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import RecyclingIcon from "@mui/icons-material/Recycling";
 import { resolveSchoolLogoUrl } from "@/lib/school/logo";
 
@@ -40,11 +40,8 @@ export default function InventoryBreakdownCard({ items = [], isAdmin, schoolLogo
     const forRepurposing = items
         .filter((r) => r.itemStatus === "ForRepurpose" && r.storedAt === "TCC")
         .reduce((s, r) => s + (r.quantity || 0), 0);
-    const recyclingDisposal = items
-        .filter((r) => r.itemStatus === "Disposed" && r.storedAt === "Exited")
-        .reduce((s, r) => s + (r.quantity || 0), 0);
     const total = isAdmin
-        ? schoolStock + psgActivities + forRepurposing + recyclingDisposal
+        ? schoolStock + psgActivities + forRepurposing
         : schoolStock + psgActivities;
 
     const buckets = [
@@ -78,12 +75,12 @@ export default function InventoryBreakdownCard({ items = [], isAdmin, schoolLogo
             value: psgActivities,
             bg: "#fef3c7",
             color: "#b45309",
-            renderIcon: () => <FamilyRestroomIcon sx={{ fontSize: 22, color: "#b45309" }} />,
+            renderIcon: () => <GroupsOutlinedIcon sx={{ fontSize: 22, color: "#b45309" }} />,
         },
         ...(isAdmin
             ? [
                 {
-                    label: "For TCC Repurposing",
+                    label: "For Repurposing",
                     value: forRepurposing,
                     bg: "#ccfbf1",
                     color: "#0f766e",
@@ -97,19 +94,12 @@ export default function InventoryBreakdownCard({ items = [], isAdmin, schoolLogo
                         />
                     ),
                 },
-                {
-                    label: "For Recycling/Disposal",
-                    value: recyclingDisposal,
-                    bg: "#e8f5e9",
-                    color: "#2e7d32",
-                    renderIcon: () => <RecyclingIcon sx={{ fontSize: 22, color: "#2e7d32" }} />,
-                },
             ]
             : []),
     ];
 
     return (
-        <div className={`grid grid-cols-2 sm:grid-cols-3 ${isAdmin ? "lg:grid-cols-5" : "lg:grid-cols-3"} gap-4 mb-6`}>
+        <div className={`grid grid-cols-2 sm:grid-cols-3 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-4 mb-6`}>
             {buckets.map(({ label, value, bg, renderIcon }) => {
                 const iconNode = renderIcon();
                 return (
@@ -140,4 +130,4 @@ export default function InventoryBreakdownCard({ items = [], isAdmin, schoolLogo
             })}
         </div>
     );
-}
+}

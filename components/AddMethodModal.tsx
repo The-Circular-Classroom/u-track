@@ -9,6 +9,7 @@ export default function AddMethodModal({
   onClose,
   onAddManually,
   onUploadExcel,
+  onDownloadTemplate,
   showManual = true,
 }) {
   if (!isOpen) return null;
@@ -22,7 +23,7 @@ export default function AddMethodModal({
         {/* Header */}
         <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-            How would you like to add a new piece?
+            How would you like to add new pieces?
           </h2>
           <button
             type="button"
@@ -35,7 +36,7 @@ export default function AddMethodModal({
 
         {/* Content */}
         <div className="p-6 sm:p-8">
-          <div className={`grid gap-4 ${showManual ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={`grid gap-4 ${showManual ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
             {showManual && (
               <button
                 type="button"
@@ -65,6 +66,22 @@ export default function AddMethodModal({
               <span className="font-semibold text-gray-900 text-base">Upload Excel/CSV</span>
               <span className="text-sm text-gray-500 mt-1.5">Import multiple items at once</span>
             </button>
+
+            {onDownloadTemplate && (
+              <button
+                type="button"
+                onClick={onDownloadTemplate}
+                className="flex flex-col items-center p-8 rounded-lg border-2 border-gray-200 hover:border-[var(--color-main)] hover:bg-green-50/50 text-center transition-colors cursor-pointer group"
+              >
+                <span className="w-14 h-14 rounded-full bg-green-100 group-hover:bg-green-200 flex items-center justify-center text-[var(--color-main)] mb-4 transition-colors">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </span>
+                <span className="font-semibold text-gray-900 text-base">Download Template</span>
+                <span className="text-sm text-gray-500 mt-1.5">Download the Uniform Donation template</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

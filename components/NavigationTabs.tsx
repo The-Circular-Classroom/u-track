@@ -12,7 +12,7 @@ function normalizePath(p: string | null) {
   return out
 }
 
-const HIDDEN_TAB_ROUTES = ['/', '/analytics', '/auth', '/settings', '/users']
+const HIDDEN_TAB_ROUTES = ['/', '/analytics', '/auth', '/settings', '/users', '/donation-drives', '/analytics/configuration/products']
 
 interface TabConfig {
   label: string
@@ -22,11 +22,12 @@ interface TabConfig {
 }
 
 const TABS: TabConfig[] = [
-  { label: 'Inventory Collection', value: '/inventory' },
-  { label: 'Update Item Condition', value: '/update-item-condition' },
+  { label: 'Uniform Overview', value: '/inventory/uniform-overview' },
+  { label: 'Inventory Overview', value: '/inventory/overview' },
+  { label: 'Inventory by Items', value: '/inventory/items' },
+  { label: 'Update Inventory', value: '/update-item-condition' },
   { label: 'Files Approval', value: '/file-approval', roles: ['TCC_ADMIN'] },
   { label: 'Activity Logs', value: '/transaction', roles: ['TCC_ADMIN'] },
-  { label: 'Donation Drives', value: '/donation-drives' },
   { label: 'Configuration', value: '/configuration/itemtype-preset', match: '/configuration', roles: ['TCC_ADMIN'] },
 ]
 
