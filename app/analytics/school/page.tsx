@@ -21,7 +21,7 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import SellIcon from '@mui/icons-material/Sell';
 import RecyclingIcon from '@mui/icons-material/Recycling';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined';
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';

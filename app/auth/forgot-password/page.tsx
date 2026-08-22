@@ -86,8 +86,8 @@ export default function ForgotPasswordPage() {
             <Box sx={{ height: 6, background: 'linear-gradient(90deg, var(--color-main, #16a34a) 0%, rgba(59,130,246,0.9) 60%, rgba(236,72,153,0.9) 100%)' }} />
 
             <Box sx={{ p: { xs: 3, sm: 4 } }}>
-              <Stack spacing={1} sx={{ mb: 3 }} textAlign="center">
-                <Typography variant="h4" component="h1" fontWeight={600} color="text.primary">
+              <Stack spacing={1} sx={{ mb: 3, textAlign: 'center' }}>
+                <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: 'text.primary' }}>
                   Forget Password
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -106,12 +106,14 @@ export default function ForgotPasswordPage() {
                     placeholder="johndoe@email.com"
                     value={formData.email}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <EmailRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -137,7 +139,7 @@ export default function ForgotPasswordPage() {
 
                   <Divider sx={{ my: 0.5 }} />
 
-                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                  <Typography variant="body2" color="text.secondary" align="center">
                     Remember your password?{' '}
                     <Link href="/auth/login" style={{ color: '#2563eb', fontWeight: 700 }}>
                       Sign In

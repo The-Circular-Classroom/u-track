@@ -539,10 +539,10 @@ export default function UsersPage() {
   }
 
   return (
-    <Box p={4}>
+    <Box sx={{ p: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={700} sx={{ color: 'var(--color-darker)' }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'var(--color-darker)' }}>
             Users
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -664,7 +664,7 @@ export default function UsersPage() {
         anchor="right"
         open={drawerOpen}
         onClose={handleCloseDrawer}
-        PaperProps={{ sx: { width: { xs: '100%', sm: 460 } } }}
+        slotProps={{ paper: { sx: { width: { xs: '100%', sm: 460 } } } }}
       >
         <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -757,7 +757,7 @@ export default function UsersPage() {
               <Divider sx={{ my: 1 }} />
 
               <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                   Temporary Password Action
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
@@ -910,7 +910,7 @@ export default function UsersPage() {
               sx={{ '& .MuiInputBase-input': { fontFamily: 'monospace', fontWeight: 700, fontSize: '1.05rem' } }}
             />
             {tempPasswordResult?.emailSent ? (
-              <Typography variant="caption" color="success.main" fontWeight={600}>
+              <Typography variant="caption" sx={{ color: 'success.main', fontWeight: 600 }}>
                 ✓ An email containing this temporary password has been sent to {selectedUser?.email}.
               </Typography>
             ) : (

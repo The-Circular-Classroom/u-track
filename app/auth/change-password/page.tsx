@@ -132,7 +132,7 @@ export default function ChangePasswordPage() {
             />
 
             <Box sx={{ p: { xs: 3, sm: 4 } }}>
-              <Stack spacing={2} sx={{ mb: 3 }} textAlign="center">
+              <Stack spacing={2} sx={{ mb: 3, textAlign: 'center' }}>
                 <Box
                   sx={{
                     width: 48,
@@ -149,7 +149,7 @@ export default function ChangePasswordPage() {
                   <ShieldRounded />
                 </Box>
                 <div>
-                  <Typography variant="h5" component="h1" fontWeight={700} color="text.primary">
+                  <Typography variant="h5" component="h1" sx={{ fontWeight: 700, color: 'text.primary' }}>
                     Change Password
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -171,23 +171,25 @@ export default function ChangePasswordPage() {
                     placeholder="••••••••••••"
                     value={formData.currentPassword}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle current password visibility"
-                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                            edge="end"
-                          >
-                            {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle current password visibility"
+                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                              edge="end"
+                            >
+                              {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -203,23 +205,25 @@ export default function ChangePasswordPage() {
                     placeholder="••••••••••••"
                     value={formData.password}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -235,23 +239,25 @@ export default function ChangePasswordPage() {
                     placeholder="••••••••••••"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            edge="end"
-                          >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              edge="end"
+                            >
+                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },

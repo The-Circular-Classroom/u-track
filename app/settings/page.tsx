@@ -268,9 +268,13 @@ export default function Settings() {
                       </ListItemIcon>
                       <ListItemText
                         primary={item.label}
-                        primaryTypographyProps={{
-                          fontWeight: activeTab === item.id ? 600 : 500,
-                          color: activeTab === item.id ? '#111827' : '#4b5563'
+                        slotProps={{
+                          primary: {
+                            sx: {
+                              fontWeight: activeTab === item.id ? 600 : 500,
+                              color: activeTab === item.id ? '#111827' : '#4b5563',
+                            },
+                          },
                         }}
                       />
                     </ListItemButton>
@@ -311,8 +315,10 @@ export default function Settings() {
                       <ListItemText
                         primary="Name"
                         secondary={fullName}
-                        primaryTypographyProps={{ fontWeight: 600, color: '#374151', fontSize: '1.05rem' }}
-                        secondaryTypographyProps={{ color: '#6b7280', mt: 0.5, fontWeight: 500 }}
+                        slotProps={{
+                          primary: { sx: { fontWeight: 600, color: '#374151', fontSize: '1.05rem' } },
+                          secondary: { sx: { color: '#6b7280', mt: 0.5, fontWeight: 500 } },
+                        }}
                       />
                     </AccordionSummary>
                     <AccordionDetails sx={{ px: { xs: 3, sm: 4, md: 10 }, pb: 4, pt: 0 }}>
@@ -377,8 +383,10 @@ export default function Settings() {
                       <ListItemText
                         primary="Email Address"
                         secondary={email}
-                        primaryTypographyProps={{ fontWeight: 600, color: '#374151', fontSize: '1.05rem' }}
-                        secondaryTypographyProps={{ color: '#6b7280', mt: 0.5, fontWeight: 500 }}
+                        slotProps={{
+                          primary: { sx: { fontWeight: 600, color: '#374151', fontSize: '1.05rem' } },
+                          secondary: { sx: { color: '#6b7280', mt: 0.5, fontWeight: 500 } },
+                        }}
                       />
                     </AccordionSummary>
                     <AccordionDetails sx={{ px: { xs: 3, sm: 4, md: 10 }, pb: 4, pt: 0 }}>
@@ -424,8 +432,10 @@ export default function Settings() {
                       <ListItemText
                         primary="Password"
                         secondary="Change your account password"
-                        primaryTypographyProps={{ fontWeight: 600, color: '#374151', fontSize: '1.05rem' }}
-                        secondaryTypographyProps={{ color: '#6b7280', mt: 0.5, fontWeight: 500 }}
+                        slotProps={{
+                          primary: { sx: { fontWeight: 600, color: '#374151', fontSize: '1.05rem' } },
+                          secondary: { sx: { color: '#6b7280', mt: 0.5, fontWeight: 500 } },
+                        }}
                       />
                     </AccordionSummary>
                     <AccordionDetails sx={{ px: { xs: 3, sm: 4, md: 10 }, pb: 4, pt: 0 }}>
@@ -491,8 +501,10 @@ export default function Settings() {
                       <ListItemText
                         primary="Deactivate Account"
                         secondary="Permanently disable your account and remove active sessions"
-                        primaryTypographyProps={{ fontWeight: 600, color: '#b91c1c', fontSize: '1.05rem' }}
-                        secondaryTypographyProps={{ color: '#6b7280', mt: 0.5, fontWeight: 500 }}
+                        slotProps={{
+                          primary: { sx: { fontWeight: 600, color: '#b91c1c', fontSize: '1.05rem' } },
+                          secondary: { sx: { color: '#6b7280', mt: 0.5, fontWeight: 500 } },
+                        }}
                       />
                     </AccordionSummary>
                     <AccordionDetails sx={{ px: { xs: 3, sm: 4, md: 10 }, pb: 4, pt: 0 }}>

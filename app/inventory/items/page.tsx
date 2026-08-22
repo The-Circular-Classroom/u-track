@@ -204,7 +204,7 @@ export default function InventoryPage() {
   return (
     <Box sx={{ p: 4 }}>
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h4" fontWeight={700} sx={{ color: 'var(--color-darker)' }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: 'var(--color-darker)' }}>
           Inventory by Items
         </Typography>
       </Box>

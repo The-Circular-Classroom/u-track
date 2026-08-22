@@ -15,7 +15,7 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import SellIcon from '@mui/icons-material/Sell';
 import RecyclingIcon from '@mui/icons-material/Recycling';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 // components
 import LoadingSpinner from '@/components/ui/LoadingSpinner';

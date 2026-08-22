@@ -48,8 +48,7 @@ export default function InventoryLandingPage() {
       <Box sx={{ mb: 4 }}>
         <Typography
           variant="h4"
-          fontWeight={700}
-          sx={{ color: 'var(--color-darker)' }}
+          sx={{ fontWeight: 700, color: 'var(--color-darker)' }}
         >
           Uniform Inventory Tracker
         </Typography>

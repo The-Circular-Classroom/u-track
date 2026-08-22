@@ -160,7 +160,7 @@ function LoginForm() {
 
             <Box sx={{ p: { xs: 3, sm: 4 } }}>
               <Stack spacing={1} sx={{ mb: 3 }}>
-                <Typography variant="h4" component="h1" fontWeight={600} color="text.primary">
+                <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: 'text.primary' }}>
                   Welcome Back
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -180,12 +180,14 @@ function LoginForm() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoComplete="email"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <EmailRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
@@ -205,23 +207,25 @@ function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassword((v) => !v)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword((v) => !v)}
+                              edge="end"
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
@@ -249,13 +253,13 @@ function LoginForm() {
                   </Button>
 
                   <Divider sx={{ my: 0.5 }} />
-                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                  <Typography variant="body2" color="text.secondary" align="center">
                     Need an account?{' '}
                     <Link href={`/auth/signup${continuePath ? `?continue=${continuePath}` : ''}`} style={{ color: '#2563eb', fontWeight: 700 }}>
                       Sign up
                     </Link>
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                  <Typography variant="body2" color="text.secondary" align="center">
                     Forgot password?{' '}
                     <Link href={`/auth/forgot-password${continuePath ? `?continue=${continuePath}` : ''}`} style={{ color: '#2563eb', fontWeight: 700 }}>
                       Reset password

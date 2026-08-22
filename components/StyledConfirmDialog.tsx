@@ -41,7 +41,7 @@ export default function StyledConfirmDialog({
     <Dialog
       open={open}
       onClose={loading ? undefined : onClose}
-      PaperProps={{ sx: CONFIRM_DIALOG.paper }}
+      slotProps={{ paper: { sx: CONFIRM_DIALOG.paper } }}
     >
       <DialogTitle sx={{ pb: 0.5 }}>
         <Typography sx={CONFIRM_DIALOG.title}>{title}</Typography>

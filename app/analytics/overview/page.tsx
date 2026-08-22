@@ -25,7 +25,7 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import SellIcon from '@mui/icons-material/Sell';
 import RecyclingIcon from '@mui/icons-material/Recycling';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import SchoolIcon from '@mui/icons-material/School';
 import ScaleOutlinedIcon from '@mui/icons-material/ScaleOutlined';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';

@@ -136,8 +136,8 @@ export default function SignupPage() {
             <Box sx={{ height: 6, background: 'linear-gradient(90deg, var(--color-main, #16a34a) 0%, rgba(59,130,246,0.9) 60%, rgba(236,72,153,0.9) 100%)' }} />
 
             <Box sx={{ p: { xs: 3, sm: 4 } }}>
-              <Stack spacing={1} sx={{ mb: 3 }} textAlign="center">
-                <Typography variant="h4" component="h1" fontWeight={600} color="text.primary">
+              <Stack spacing={1} sx={{ mb: 3, textAlign: 'center' }}>
+                <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: 'text.primary' }}>
                   Create Account
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -155,12 +155,14 @@ export default function SignupPage() {
                     placeholder="John Doe"
                     value={formData.fullName}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PersonRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -174,12 +176,14 @@ export default function SignupPage() {
                     placeholder="John"
                     value={formData.firstName}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <BadgeRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <BadgeRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -193,12 +197,14 @@ export default function SignupPage() {
                     placeholder="Doe"
                     value={formData.lastName}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <BadgeRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <BadgeRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -213,12 +219,14 @@ export default function SignupPage() {
                     placeholder="johndoe@email.com"
                     value={formData.emailAddress}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <EmailRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -232,12 +240,14 @@ export default function SignupPage() {
                     placeholder="12345678"
                     value={formData.phoneNumber}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PhoneRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PhoneRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -252,23 +262,25 @@ export default function SignupPage() {
                     placeholder="••••••••••••"
                     value={formData.password}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -283,23 +295,25 @@ export default function SignupPage() {
                     placeholder="••••••••••••"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockRounded fontSize="small" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            edge="end"
-                          >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockRounded fontSize="small" />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              edge="end"
+                            >
+                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': { borderRadius: 2.5, bgcolor: 'white' },
@@ -325,7 +339,7 @@ export default function SignupPage() {
 
                   <Divider sx={{ my: 0.5 }} />
 
-                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                  <Typography variant="body2" color="text.secondary" align="center">
                     Already have an account?{' '}
                     <Link href="/auth/login" style={{ color: '#2563eb', fontWeight: 700 }}>
                       Sign In

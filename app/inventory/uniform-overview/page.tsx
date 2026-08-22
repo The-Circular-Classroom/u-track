@@ -408,8 +408,7 @@ export default function UniformOverviewPage() {
       <Box sx={{ mb: 2 }}>
         <Typography
           variant="h4"
-          fontWeight={700}
-          sx={{ color: 'var(--color-darker)' }}
+          sx={{ fontWeight: 700, color: 'var(--color-darker)' }}
         >
           Uniform Overview
         </Typography>

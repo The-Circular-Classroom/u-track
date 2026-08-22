@@ -20,7 +20,7 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import StyledModal from '@/components/ui/StyledModal';
