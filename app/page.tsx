@@ -16,6 +16,8 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 export default function Home() {
   const [mounted, setMounted] = useState(false)
 
+  const publicWebsiteDomain = "hansen-lim.dev"
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -92,7 +94,7 @@ export default function Home() {
         }
         if (accessToken && refreshToken) {
           window.open(
-            `https://hansen-lim.dev/admin/auth/callback?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`,
+            `https://${publicWebsiteDomain}/admin/auth/callback?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`,
             '_blank',
             'noopener,noreferrer'
           )
