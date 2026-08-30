@@ -95,7 +95,7 @@ export default function Home() {
         if (accessToken && refreshToken) {
           window.open(
             `https://${publicWebsiteDomain}/admin/auth/callback?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`,
-            '_blank',
+            '_self',
             'noopener,noreferrer'
           )
         }
