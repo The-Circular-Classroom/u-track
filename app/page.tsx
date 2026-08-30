@@ -16,7 +16,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 export default function Home() {
   const [mounted, setMounted] = useState(false)
 
-  const publicWebsiteDomain = "hansen-lim.dev"
+  const publicWebsiteDomain = "d269lzog3meaz1.cloudfront.net"
 
   useEffect(() => {
     setMounted(true)
