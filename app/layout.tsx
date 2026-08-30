@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'EcoTrack - Circular Classroom',
+  title: 'U-Track - Circular Classroom',
   description: 'Uniform Inventory & Recycling Tracker',
   manifest: '/manifest.json',
   appleWebApp: {

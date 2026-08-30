@@ -1,5 +1,5 @@
 /**
- * Role authorization utilities for the EcoTrack platform.
+ * Role authorization utilities for the U-Track platform.
  *
  * Implements role hierarchy and permission checking per Requirements 3.1, 3.4, 3.5, 3.6.
  */

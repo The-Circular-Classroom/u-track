@@ -114,7 +114,7 @@ export default function Home() {
           {greeting}
         </Typography>
         <Typography variant="body1" sx={{ color: '#333', fontSize: '1.1rem', mb: 3 }}>
-          Welcome to UTrack, a platform that helps schools and Parent Support Groups manage preloved school uniforms more effectively. Track donations, monitor reuse and repurposing activities, measure environmental and social impact, and generate insights to support more sustainable school communities. Together, we can extend the life of school uniforms, reduce textile waste, and make circularity visible, measurable and actionable.
+          Welcome to U-Track, a platform that helps schools and Parent Support Groups manage preloved school uniforms more effectively. Track donations, monitor reuse and repurposing activities, measure environmental and social impact, and generate insights to support more sustainable school communities. Together, we can extend the life of school uniforms, reduce textile waste, and make circularity visible, measurable and actionable.
         </Typography>
         <Typography variant="body1" sx={{ color: '#666', fontSize: '1.1rem' }}>
           What would you like to do today?

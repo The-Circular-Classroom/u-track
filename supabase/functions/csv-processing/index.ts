@@ -87,7 +87,7 @@ function mapItemStatus(value: string): string {
 
 async function sendEmail({ to, subject, html }: { to: string[]; subject: string; html: string }) {
   const apiKey = Deno.env.get('RESEND_API_KEY')
-  const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'noreply@ecotrack.app'
+  const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'noreply@u-track.app'
   if (!apiKey) {
     console.warn('RESEND_API_KEY not configured, skipping email notification')
     return

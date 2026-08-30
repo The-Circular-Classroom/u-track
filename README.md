@@ -1,6 +1,6 @@
-# EcoTrack
+# U-Track
 
-EcoTrack is The Circular Classroom's unified web platform for donation collection, inventory operations, analytics, reporting, and user administration.
+U-Track is The Circular Classroom's unified web platform for donation collection, inventory operations, analytics, reporting, and user administration.
 
 This repository represents a migration from multi-service AWS infrastructure to a single Next.js application on Vercel with Supabase.
 
