@@ -57,6 +57,14 @@ export async function fetchCollectionInventoryCount(apiUrl, options = {}) {
   return fetchJson(`${apiUrl}/api/collection/inventory-count`, options);
 }
 
+export async function fetchOverallDonations(apiUrl = '', options = {}) {
+  return fetchJson(`${apiUrl}/api/collection/overall-donations`, options);
+}
+
+export async function fetchOverallDonationsByCategory(apiUrl = '', options = {}) {
+  return fetchJson(`${apiUrl}/api/collection/overall-donations-by-category`, options);
+}
+
 export async function fetchCollectionFunnel(apiUrl, { year, schoolId }, options = {}) {
   const query = buildQuery({ year, schoolId });
   return fetchJson(`${apiUrl}/api/collection/funnel?${query}`, options);

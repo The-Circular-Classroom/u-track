@@ -19,6 +19,8 @@ const PUBLIC_PATHS = [
   '/api/auth/signup',
   '/api/auth/forgot-password',
   '/api/auth/set-new-password',
+  '/api/collection/overall-donations',
+  '/api/collection/overall-donations-by-category',
 ]
 
 function getDefaultRouteForRole(role: string): string {

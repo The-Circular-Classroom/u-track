@@ -1169,6 +1169,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
       return NextResponse.json({
         success: true,
+        message: 'Overall inventory count retrieved successfully',
         data: {
           totalCount,
           totalWeight: Math.round(totalWeight * 100) / 100
@@ -1217,6 +1218,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
       return NextResponse.json({
         success: true,
+        message: 'Overall inventory count by category retrieved successfully',
         data: responseData
       })
     }
