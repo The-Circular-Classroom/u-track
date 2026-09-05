@@ -185,12 +185,13 @@ export default function InventoryOverviewPage() {
     loadSchoolData(selectedSchoolId);
   }, [selectedSchoolId, loadSchoolData]);
 
-  const selectedSchoolName = useMemo(
-    () =>
+  const selectedSchoolName = useMemo(() => {
+    if (selectedSchoolId === "all") return "All Schools";
+    return (
       schools.find((s) => String(s.id) === String(selectedSchoolId))
-        ?.schoolName || "",
-    [schools, selectedSchoolId],
-  );
+        ?.schoolName || ""
+    );
+  }, [schools, selectedSchoolId]);
 
   // Weight apportioned by piece share of the total collection (mirrors the
   // analytics school view, which has no true per-piece weight).
@@ -236,8 +237,10 @@ export default function InventoryOverviewPage() {
     const map = new Map();
 
     items.forEach((it) => {
-      const catName = it.categoryName || "Unknown";
-      if (catName.toLowerCase() === "gym shorts") return;
+      let catName = it.categoryName || "Unknown";
+      if (catName.toLowerCase() === "gym shorts") {
+        catName = "Others";
+      }
 
       const key = it.categoryId ?? catName;
       if (!map.has(key)) {
@@ -259,18 +262,9 @@ export default function InventoryOverviewPage() {
       if (!entry.imageUrl && it.imageUrl) entry.imageUrl = it.imageUrl;
     });
 
-    const categoryOrder = [
-      "Shirt", "Skirt/Pinafore", "Shorts", "Pants", "Polo Shirt",
-      "House Shirt", "PE Shirt", "PE Shorts", "Belt", "Tie", "Cap", "Others"
-    ];
-
     // Sort by canonical category display order
     return Array.from(map.values()).sort((a, b) => {
-      let idxA = categoryOrder.indexOf(a.categoryName);
-      let idxB = categoryOrder.indexOf(b.categoryName);
-      if (idxA === -1) idxA = 999;
-      if (idxB === -1) idxB = 999;
-      return idxA - idxB;
+      return getCategoryOrder(a.categoryName) - getCategoryOrder(b.categoryName);
     });
   }, [inventoryByItem, isAdmin]);
 
@@ -314,8 +308,9 @@ export default function InventoryOverviewPage() {
               value={selectedSchoolId}
               onChange={(e) => setSelectedSchoolId(e.target.value)}
             >
+              <MenuItem value="all">All Schools</MenuItem>
               {schools.map((s) => (
-                <MenuItem key={s.id} value={s.id}>
+                <MenuItem key={s.id} value={String(s.id)}>
                   {toTitleCase(s.schoolName)}
                 </MenuItem>
               ))}

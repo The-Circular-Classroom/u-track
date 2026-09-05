@@ -36,6 +36,13 @@ export const CATEGORY_ORDER = [
   'others',
 ];
 
+export const CATEGORY_ROWS = [
+  ['uniform_shirt', 'uniform_skirt_group', 'uniform_shorts', 'uniform_pants'],
+  ['polo_shirt', 'house_shirt', 'pe_shirt', 'pe_shorts'],
+  ['tie', 'belt', 'cap'],
+  ['others'],
+];
+
 export const CATEGORY_DISPLAY_LABELS = {
   uniform_shirt:       'Uniform Shirt',
   uniform_skirt_group: 'Uniform Skirt / Skort / Pinafore',
@@ -45,8 +52,8 @@ export const CATEGORY_DISPLAY_LABELS = {
   house_shirt:         'House Shirt',
   pe_shirt:            'PE Shirt',
   pe_shorts:           'PE Shorts',
-  belt:                'Belt',
   tie:                 'Tie',
+  belt:                'Belt',
   cap:                 'Cap',
   others:              'Others',
 };
@@ -74,8 +81,9 @@ export function groupCategoryName(categoryName) {
   if (name === 'house_shirt'    || name === 'house shirt')    return 'house_shirt';
   if (name === 'pe_shirt'       || name === 'pe shirt')       return 'pe_shirt';
   if (name === 'pe_shorts'      || name === 'pe shorts')      return 'pe_shorts';
-  if (name === 'belt')  return 'belt';
+  if (name === 'gym_shorts'     || name === 'gym shorts')     return 'others';
   if (name === 'tie')   return 'tie';
+  if (name === 'belt')  return 'belt';
   if (name === 'cap')   return 'cap';
 
   // Catch-all: anything containing the word "other"

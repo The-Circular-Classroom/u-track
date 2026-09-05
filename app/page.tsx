@@ -2,13 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Box, Typography, Card, CardActionArea, CardContent, Grid, Chip } from '@mui/material'
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
-import CheckroomOutlinedIcon from '@mui/icons-material/CheckroomOutlined'
-import VolunteerActivismOutlinedIcon from '@mui/icons-material/VolunteerActivismOutlined'
-import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined'
-import DirectionsBusOutlinedIcon from '@mui/icons-material/DirectionsBusOutlined'
-import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined'
-import WebOutlinedIcon from '@mui/icons-material/WebOutlined'
+import Image from 'next/image'
 import NextLink from 'next/link'
 import { getRoleFromSession, setTokensInSession, getTokensFromSession } from '@/utils/auth'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
@@ -40,35 +34,35 @@ export default function Home() {
     {
       title: 'School Dashboard',
       description: 'Data and Insights to explore your school\'s uniform collection, reuse and impact',
-      icon: <DashboardOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic - School Circularity Dashboard.png',
       href: '/analytics/school',
       requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF'],
     },
     {
       title: 'Uniform Tracker',
       description: 'Tracking collection, reuse, repurposing and recycling of uniforms',
-      icon: <CheckroomOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic - Circular Uniform Tracker.png',
       href: '/inventory',
       requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF', 'PSG'],
     },
     {
       title: 'Donation Drives',
       description: 'Resources and info materials to organise and manage donation drives',
-      icon: <VolunteerActivismOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic - Uniform Donation Drives.png',
       href: '/donation-drives',
       requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF', 'PSG'],
     },
     {
       title: 'Collaborations & Products',
       description: 'Overview of sustainability projects and products made of repurposed uniforms',
-      icon: <Diversity3OutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic - Collaborations and Products.png',
       href: '/analytics/configuration/products',
-      requiredRoles: ['TCC_ADMIN'],
+      requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF', 'PSG'],
     },
     {
       title: 'Greener Routes to School',
       description: 'Supporting more sustainable journeys to and from school',
-      icon: <DirectionsBusOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic_Footsteps.jpg',
       href: 'https://greener-routes.hansen-lim.dev',
       requiredRoles: ['TCC_ADMIN'],
       comingSoon: true,
@@ -76,14 +70,14 @@ export default function Home() {
     {
       title: 'User Management',
       description: 'Manage users and their roles on this platform',
-      icon: <PeopleOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic - PSG and User.jpg',
       href: '/users',
       requiredRoles: ['TCC_ADMIN'],
     },
     {
       title: 'Website Management',
       description: 'Manage the contents of the public website',
-      icon: <WebOutlinedIcon sx={{ fontSize: 32, mb: 2, color: '#1a1a1a' }} />,
+      imageSrc: '/images/Graphic_Website Management.jpg',
       onClick: async () => {
         let supabase = createSupabaseBrowserClient()
         let { data: { session } } = await supabase.auth.getSession()
@@ -102,6 +96,14 @@ export default function Home() {
       },
       requiredRoles: ['TCC_ADMIN'],
     },
+    {
+      title: 'Future Modules',
+      description: 'Stay tuned for new modules',
+      imageSrc: '/images/Graphic_Future Modules.png',
+      href: '',
+      requiredRoles: ['TCC_ADMIN', 'SCHOOL_STAFF', 'PSG'],
+      comingSoon: true,
+    },
   ]
 
   const canAccessCard = (requiredRoles: string[]) => {
@@ -109,24 +111,28 @@ export default function Home() {
     return requiredRoles.includes(userRole)
   }
 
+  const visibleCards = cards.filter((card) => canAccessCard(card.requiredRoles))
+
   return (
     <Box sx={{ p: { xs: 4, md: 8 }, maxWidth: 1200, mx: 'auto' }}>
       <Box sx={{ mb: 6 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1.5, color: '#1a1a1a' }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 2, color: '#1a1a1a' }}>
           {greeting}
         </Typography>
-        <Typography variant="body1" sx={{ color: '#333', fontSize: '1.1rem', mb: 3 }}>
-          Welcome to U-Track, a platform that helps schools and Parent Support Groups manage preloved school uniforms more effectively. Track donations, monitor reuse and repurposing activities, measure environmental and social impact, and generate insights to support more sustainable school communities. Together, we can extend the life of school uniforms, reduce textile waste, and make circularity visible, measurable and actionable.
+        <Typography variant="body1" sx={{ color: '#333', fontSize: '1.05rem', mb: 2, lineHeight: 1.6 }}>
+          Welcome to U-Track, a platform that helps schools and Parent Support Groups manage preloved school uniforms more effectively. Track donations, monitor reuse and repurposing activities, measure environmental and social impact, and generate insights to support more sustainable school communities.
         </Typography>
-        <Typography variant="body1" sx={{ color: '#666', fontSize: '1.1rem' }}>
+        <Typography variant="body1" sx={{ color: '#333', fontSize: '1.05rem', mb: 3, lineHeight: 1.6 }}>
+          Together, we can extend the life of school uniforms, reduce textile waste, and make circularity visible, measurable and actionable.
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#666', fontSize: '1.05rem', fontWeight: 500 }}>
           What would you like to do today?
         </Typography>
       </Box>
 
       <Grid container spacing={4}>
-        {cards.map((card, index) => {
-          const hasAccess = canAccessCard(card.requiredRoles)
-          const isClickable = (Boolean(card.href) || Boolean(card.onClick)) && hasAccess
+        {visibleCards.map((card, index) => {
+          const isClickable = (Boolean(card.href) || Boolean(card.onClick)) && !card.comingSoon
 
           return (
             <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
@@ -137,7 +143,6 @@ export default function Home() {
                   border: '1px solid #e0e0e0',
                   boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
                   height: '100%',
-                  opacity: hasAccess ? 1 : 0.6,
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   ...(isClickable && {
                     '&:hover': {
@@ -159,10 +164,17 @@ export default function Home() {
                     sx={{ height: '100%', p: 2 }}
                   >
                     <CardContent>
-                      {card.icon}
+                      <Box sx={{ width: 48, height: 48, position: 'relative', mb: 2 }}>
+                        <Image
+                          src={card.imageSrc}
+                          alt={card.title}
+                          width={48}
+                          height={48}
+                          className="object-contain"
+                        />
+                      </Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1 }}>
                         {card.title}
-                        {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
                         {card.description}
@@ -170,9 +182,17 @@ export default function Home() {
                     </CardContent>
                   </CardActionArea>
                 ) : (
-                  <Box sx={{ height: '100%', p: 2, cursor: card.href && !hasAccess ? 'not-allowed' : 'default' }}>
+                  <Box sx={{ height: '100%', p: 2, cursor: card.comingSoon ? 'default' : 'default' }}>
                     <CardContent>
-                      {card.icon}
+                      <Box sx={{ width: 48, height: 48, position: 'relative', mb: 2 }}>
+                        <Image
+                          src={card.imageSrc}
+                          alt={card.title}
+                          width={48}
+                          height={48}
+                          className="object-contain"
+                        />
+                      </Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1 }}>
                         {card.title}
                         {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
@@ -180,11 +200,6 @@ export default function Home() {
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
                         {card.description}
                       </Typography>
-                      {!hasAccess && (
-                        <Typography variant="caption" sx={{ color: '#b00020', display: 'block', mt: 1 }}>
-                          You do not have access to this module.
-                        </Typography>
-                      )}
                     </CardContent>
                   </Box>
                 )}

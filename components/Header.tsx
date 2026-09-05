@@ -197,7 +197,7 @@ export default function Header() {
                         href={app.href}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${isActive
                           ? 'bg-white text-[var(--color-main)] shadow-sm'
-                          : 'text-gray-500 hover:text-gray-700'
+                          : 'text-gray-500 hover:text-[var(--color-main)]'
                           }`}
                       >
                         {app.icon}

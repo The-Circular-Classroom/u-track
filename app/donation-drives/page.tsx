@@ -278,19 +278,6 @@ function ResourcesPanel({ onAddDrive, onDownloadTemplate }) {
         height: "max-content",
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
-        <CustomButton onClick={onAddDrive} icon={<FaPlus />}>
-          Add New Drive
-        </CustomButton>
-        <CustomButton
-          variant="outline"
-          onClick={onDownloadTemplate}
-          icon={<DownloadIcon sx={{ fontSize: 18 }} />}
-        >
-          Download Template
-        </CustomButton>
-      </Box>
-
       <Typography
         variant="h6"
         fontWeight={700}
@@ -303,6 +290,145 @@ function ResourcesPanel({ onAddDrive, onDownloadTemplate }) {
       </Typography>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+        {/* Add New Drive Action Link */}
+        <Box
+          component="button"
+          type="button"
+          onClick={onAddDrive}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            p: 1.5,
+            borderRadius: 2,
+            border: "1px solid #e5e7eb",
+            backgroundColor: "transparent",
+            textAlign: "left",
+            transition: "all 0.15s ease",
+            cursor: "pointer",
+            width: "100%",
+            "&:hover": {
+              borderColor: "var(--color-main)",
+              backgroundColor: "var(--color-bg-light)",
+              "& .resource-arrow": { opacity: 1, transform: "translateX(0)" },
+            },
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 44,
+              height: 44,
+              flexShrink: 0,
+              borderRadius: 2,
+              backgroundColor: "var(--color-bg-light)",
+              color: "var(--color-main)",
+            }}
+          >
+            <FaPlus size={18} />
+          </Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              sx={{ color: "#111827", lineHeight: 1.3 }}
+            >
+              Add New Drive
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", lineHeight: 1.3 }}
+            >
+              Create and schedule a new donation drive
+            </Typography>
+          </Box>
+          <Box
+            className="resource-arrow"
+            sx={{
+              color: "var(--color-main)",
+              display: "flex",
+              alignItems: "center",
+              opacity: 0,
+              transform: "translateX(-4px)",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <FiArrowRight size={16} />
+          </Box>
+        </Box>
+
+        {/* Download Template Action Link */}
+        <Box
+          component="button"
+          type="button"
+          onClick={onDownloadTemplate}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            p: 1.5,
+            borderRadius: 2,
+            border: "1px solid #e5e7eb",
+            backgroundColor: "transparent",
+            textAlign: "left",
+            transition: "all 0.15s ease",
+            cursor: "pointer",
+            width: "100%",
+            "&:hover": {
+              borderColor: "var(--color-main)",
+              backgroundColor: "var(--color-bg-light)",
+              "& .resource-arrow": { opacity: 1, transform: "translateX(0)" },
+            },
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 44,
+              height: 44,
+              flexShrink: 0,
+              borderRadius: 2,
+              backgroundColor: "var(--color-bg-light)",
+              color: "var(--color-main)",
+            }}
+          >
+            <DownloadIcon sx={{ fontSize: 20 }} />
+          </Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              sx={{ color: "#111827", lineHeight: 1.3 }}
+            >
+              Download Template
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", lineHeight: 1.3 }}
+            >
+              Pre-filled donation drive spreadsheet
+            </Typography>
+          </Box>
+          <Box
+            className="resource-arrow"
+            sx={{
+              color: "var(--color-main)",
+              display: "flex",
+              alignItems: "center",
+              opacity: 0,
+              transform: "translateX(-4px)",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <FiArrowRight size={16} />
+          </Box>
+        </Box>
         {RESOURCES.map((res) => (
           <Box
             key={res.key}
@@ -397,6 +523,7 @@ export default function DonationDrivePage() {
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [schoolId, setSchoolId] = useState(null);
   const [schoolName, setSchoolName] = useState("");
+  const [allSchools, setAllSchools] = useState([]);
   const [userId, setUserId] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   
@@ -440,6 +567,20 @@ export default function DonationDrivePage() {
     if (profileLoading) return;
     fetchAllDonationDrives();
   }, [profileLoading, isAdmin, schoolId]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetch('/api/schools')
+      .then((res) => res.json())
+      .then((data) => {
+        const list = (data.schools || data.data || []).map((s: any) => ({
+          id: s.id,
+          name: s.schoolName || s.name,
+        }));
+        setAllSchools(list);
+      })
+      .catch(console.error);
+  }, [isAdmin]);
 
   const fetchAllDonationDrives = async () => {
     try {
@@ -546,6 +687,7 @@ export default function DonationDrivePage() {
 
   const uniqueSchools = useMemo(() => {
     if (!isAdmin) return [];
+    if (allSchools.length > 0) return allSchools;
     const map = new Map();
     for (const d of donationDrives) {
       if (d.school?.id && d.school?.schoolName) {
@@ -555,7 +697,7 @@ export default function DonationDrivePage() {
     return Array.from(map, ([id, name]) => ({ id, name })).sort((a, b) =>
       a.name.localeCompare(b.name),
     );
-  }, [donationDrives, isAdmin]);
+  }, [donationDrives, isAdmin, allSchools]);
 
   const filteredDrives = useMemo(() => {
     if (!isAdmin || !filterSchool) return donationDrives;
@@ -563,14 +705,20 @@ export default function DonationDrivePage() {
   }, [donationDrives, isAdmin, filterSchool]);
 
   // Title shown below the page heading: "All Schools" for admins,
-  // otherwise the logged-in user's school name (resolved from profile or drives)
+  // or the selected school if filtered, otherwise the logged-in user's school name
   const schoolTitle = useMemo(() => {
-    if (isAdmin) return "All School(s)";
+    if (isAdmin) {
+      if (filterSchool) {
+        const found = uniqueSchools.find((s) => String(s.id) === String(filterSchool));
+        return found ? found.name : "All School(s)";
+      }
+      return "All School(s)";
+    }
     const resolved =
       schoolName || donationDrives.find((d) => d.school?.schoolName)?.school?.schoolName;
     if (!resolved) return "";
     return resolved.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-  }, [isAdmin, schoolName, donationDrives]);
+  }, [isAdmin, filterSchool, uniqueSchools, schoolName, donationDrives]);
 
   const selectClass =
     "w-full px-3 py-2 pr-10 border border-gray-300 rounded-md text-sm text-gray-900 bg-white " +

@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { getRoleFromSession } from '@/utils/auth'
-import { groupCategoryName, byCategoryOrder, CATEGORY_DISPLAY_LABELS, getSubCategoryOrder } from '@/utils/categoryOrder'
+import { groupCategoryName, byCategoryOrder, CATEGORY_DISPLAY_LABELS, getSubCategoryOrder, CATEGORY_ROWS } from '@/utils/categoryOrder'
+import { getColourDisplayName } from '@/utils/colourDisplayName'
 import {
   FormControl,
   InputLabel,
@@ -182,7 +183,7 @@ function expandByGender(groupedCards: any[]) {
   return result
 }
 
-function buildColors(items: any[]) {
+function buildColors(items: any[], isAdmin: boolean = false) {
   const colorMap = new Map<string, any>()
 
   items.forEach((item) => {
@@ -192,6 +193,7 @@ function buildColors(items: any[]) {
     if (!colorMap.has(colorName)) {
       colorMap.set(colorName, {
         colorName,
+        displayName: getColourDisplayName(colorName, isAdmin),
         colorHex:
           item?.itemType?.primaryColour?.hexcode ||
           item?.itemType?.primaryColour?.hexCode ||
@@ -285,7 +287,11 @@ export default function UniformOverviewPage() {
     rows.forEach((row) => {
       const school = row?.itemType?.school
       if (school?.id && !map.has(school.id)) {
-        map.set(school.id, { id: school.id, schoolName: school.schoolName, logoUrl: school.logoUrl })
+        map.set(school.id, {
+          id: school.id,
+          schoolName: school.schoolName,
+          logoUrl: school.logoUrl || `/api/school/${school.id}/logo`,
+        })
       }
     })
     return Array.from(map.values()).sort((a, b) =>
@@ -325,11 +331,19 @@ export default function UniformOverviewPage() {
     })
   }, [cards, search])
 
+  const rowCards = useMemo(() => {
+    return CATEGORY_ROWS.map((rowKeys) => {
+      return rowKeys.flatMap((key) => {
+        return filteredCards.filter((c: any) => c?.groupKey === key)
+      })
+    }).filter((row) => row.length > 0)
+  }, [filteredCards])
+
   const filteredColors = useMemo(() => {
     const q = search.trim().toLowerCase()
     if (!q) return colors
     return colors.filter((c) =>
-      String(c?.colorName || '')
+      String(c?.displayName || c?.colorName || '')
         .toLowerCase()
         .includes(q)
     )
@@ -346,7 +360,7 @@ export default function UniformOverviewPage() {
   )
 
   const handleCardClick = (card: any) => {
-    const cols = buildColors(card.items)
+    const cols = buildColors(card.items, isAdmin)
     setSelectedCategory(card)
     setColors(cols)
     setSearch('')
@@ -439,7 +453,7 @@ export default function UniformOverviewPage() {
 
             {viewLevel === 'items' && isSingleColor ? (
               <span className="text-gray-900 font-semibold">
-                {`${selectedColor?.colorName || ''} ${selectedCategory?.category?.categoryName || ''}`.trim()}
+                {`${selectedColor?.displayName || getColourDisplayName(selectedColor?.colorName, isAdmin)} ${selectedCategory?.category?.categoryName || ''}`.trim()}
               </span>
             ) : (
               <button
@@ -459,7 +473,7 @@ export default function UniformOverviewPage() {
               <>
                 <span className="text-gray-400">/</span>
                 <span className="text-gray-900 font-semibold">
-                  {selectedColor?.colorName}
+                  {selectedColor?.displayName || getColourDisplayName(selectedColor?.colorName, isAdmin)}
                 </span>
               </>
             )}
@@ -515,14 +529,18 @@ export default function UniformOverviewPage() {
             </Typography>
           )}
 
-          {filteredCards.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-              {filteredCards.map((itemType, index) => (
-                <UniformOverviewCard
-                  key={itemType.id || index}
-                  itemType={itemType}
-                  onClick={() => handleCardClick(itemType)}
-                />
+          {rowCards.length > 0 && (
+            <div className="space-y-6">
+              {rowCards.map((row, rowIdx) => (
+                <div key={rowIdx} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {row.map((itemType, index) => (
+                    <UniformOverviewCard
+                      key={itemType.id || `${rowIdx}-${index}`}
+                      itemType={itemType}
+                      onClick={() => handleCardClick(itemType)}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           )}

@@ -19,8 +19,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     )
   }
 
-  const schoolId = parseInt(schoolIdRaw, 10)
-  if (isNaN(schoolId)) {
+  const isAll = schoolIdRaw === 'all'
+  const schoolId = isAll ? undefined : parseInt(schoolIdRaw, 10)
+  if (!isAll && isNaN(schoolId!)) {
     return NextResponse.json(
       { error: 'invalid_id', message: 'School ID must be a valid integer' },
       { status: 400 }
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const balances = await prisma.inventoryBalance.findMany({
       where: {
-        itemType: { schoolId },
+        ...(isAll ? {} : { itemType: { schoolId } }),
         quantity: { gt: 0 }
       },
       include: {

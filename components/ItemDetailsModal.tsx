@@ -304,7 +304,7 @@ export default function ItemDetailsModal({
       primary_colour_hex: selectedColourObj?.primary_colour_hexcode || null,
       secondary_colour: selectedPreset?.secondary_colour || null,
       secondary_colour_hex: selectedPreset?.secondary_colour_hexcode || null,
-      size_name: selectedSizeName,
+      size_name: selectedSizeName || 'No Size given',
       quantity,
       to_status: status,
       to_stored_at: storedAt,
@@ -519,16 +519,14 @@ export default function ItemDetailsModal({
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <label className={labelCls}>Size<span className="text-red-500 ml-0.5">*</span></label>
+                  <label className={labelCls}>Size (optional)</label>
                   <select
                     value={selectedSizeName}
                     onChange={(e) => { dispatch({ type: 'PATCH', payload: { selectedSizeName: e.target.value, selectedGender: '', selectedMaterial: '', selectedPattern: '' } }); }}
-                    disabled={!selectedColourName || sizeOptions.length === 0}
-                    className={!selectedColourName || sizeOptions.length === 0 ? disabledSelectCls : selectCls}
+                    disabled={!selectedColourName}
+                    className={!selectedColourName ? disabledSelectCls : selectCls}
                   >
-                    <option value="">
-                      {!selectedColourName ? 'Select a Colour first' : sizeOptions.length === 0 ? 'No sizes available' : 'Select Size'}
-                    </option>
+                    <option value="">No Size given</option>
                     {sizeOptions.map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>

@@ -7,7 +7,7 @@ import { getRoleFromSession } from "@/utils/auth";
 import { getCategoryOrder, getSubCategoryOrder } from "@/utils/categoryOrder";
 import { getUniformImageUrl } from "@/lib/inventory/uniformImageUrl";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { FaCheck } from "react-icons/fa6";
 import { TbCancel } from "react-icons/tb";
 
@@ -32,6 +32,7 @@ export default function SchoolItemTypesContent() {
   const isAdmin = role === "TCC_ADMIN";
 
   const [school, setSchool] = useState(null);
+  const [schools, setSchools] = useState([]);
   const [itemTypes, setItemTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,6 +48,32 @@ export default function SchoolItemTypesContent() {
   useEffect(() => {
     setRole(getRoleFromSession());
   }, []);
+
+  // Fetch all schools for admin
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetch('/api/inventory/balance')
+      .then((res) => res.json())
+      .then((data) => {
+        const rows = data.balances || data.data || [];
+        const map = new Map();
+        rows.forEach((r) => {
+          const s = r?.itemType?.school;
+          if (s?.id && !map.has(s.id)) {
+            map.set(s.id, {
+              id: s.id,
+              schoolName: s.schoolName,
+              logoUrl: s.logoUrl || `/api/school/${s.id}/logo`,
+            });
+          }
+        });
+        const list = Array.from(map.values()).sort((a, b) =>
+          String(a.schoolName || '').localeCompare(String(b.schoolName || ''))
+        );
+        setSchools(list);
+      })
+      .catch(console.error);
+  }, [isAdmin]);
 
   // Read school from sessionStorage
   useEffect(() => {
@@ -198,24 +225,49 @@ export default function SchoolItemTypesContent() {
             Inventory by Items
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Current Inventory as of {currentDate}
+            Current Inventory as of {currentDate}. Click on an item to find out more. Note: The display of sizes is optional.
           </Typography>
         </Box>
       </Box>
 
-      {/* ── Breadcrumb: Schools / School Name ── */}
-      <div className="mb-4 overflow-x-auto">
-        <nav className="flex items-center gap-2 text-sm whitespace-nowrap">
-          <button
-            type="button"
-            onClick={() => router.push("/inventory/items")}
-            className="cursor-pointer text-[var(--color-main)] hover:underline"
-          >
-            Schools
-          </button>
-          <span className="text-gray-400">/</span>
-          <span className="text-gray-900 font-semibold">{schoolName}</span>
-        </nav>
+      {/* ── Admin School Selector ── */}
+      {isAdmin && schools.length > 1 && (
+        <div className="mb-4">
+          <FormControl size="small" sx={{ minWidth: 260 }}>
+            <InputLabel id="school-select-label">School</InputLabel>
+            <Select
+              labelId="school-select-label"
+              label="School"
+              value={school?.id ? String(school.id) : ''}
+              onChange={(e) => {
+                const s = schools.find((x) => String(x.id) === String(e.target.value));
+                if (s) {
+                  setSchool(s);
+                  sessionStorage.setItem('_invSelectedSchool', JSON.stringify(s));
+                  window.dispatchEvent(new CustomEvent('school-changed', {
+                    detail: { logoUrl: s.logoUrl, schoolName: s.schoolName },
+                  }));
+                }
+              }}
+            >
+              {schools.map((s) => (
+                <MenuItem key={s.id} value={String(s.id)}>
+                  {s.schoolName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+      )}
+
+      {/* ── School Name & Logo ── */}
+      <div className="flex items-center gap-3 mb-4">
+        {school?.logoUrl && (
+          <img src={school.logoUrl} alt="School Logo" className="h-8 w-auto object-contain" />
+        )}
+        <h2 className="text-xl font-bold text-gray-900">
+          {schoolName}
+        </h2>
       </div>
 
       {/* ── Item types grid ── */}

@@ -1,7 +1,7 @@
 // @ts-nocheck
 export default function ColorCard({ color, onClick }) {
   const totalQuantity = color.totalQuantity || 0;
-  const colorName = color.colorName || 'Unknown Color';
+  const colorName = color.displayName || color.colorName || 'Unknown Color';
 
   // Color mapping for common colors
   const getColorClass = (colorName) => {

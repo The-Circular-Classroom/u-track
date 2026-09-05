@@ -3,14 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRoleFromSession } from '@/utils/auth'
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
-  Typography,
-} from '@mui/material'
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import CustomErrorButton from '@/components/ui/CustomErrorButton'
@@ -21,7 +13,6 @@ export default function InventoryPage() {
   const isAdmin = role === 'TCC_ADMIN'
   const router = useRouter()
 
-  const [schools, setSchools] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,85 +20,69 @@ export default function InventoryPage() {
     setRole(getRoleFromSession())
   }, [])
 
-  const initNonAdmin = useCallback(async () => {
+  const initInventory = useCallback(async () => {
     try {
+      setLoading(true)
+      const stored = sessionStorage.getItem('_invSelectedSchool')
+      if (stored) {
+        router.replace('/inventory/items/school')
+        return
+      }
+
       const response = await fetch('/api/inventory/balance')
       if (!response.ok) throw new Error('Failed to fetch inventory data')
 
       const { payload } = await parseApiResponse(response)
       const balances = payload.balances || payload.data || []
-      const school = balances?.[0]?.itemType?.school || null
 
-      if (school?.id) {
-        const logoUrl = school.logoUrl || `/api/school/${school.id}/logo`
-        sessionStorage.setItem('_invSelectedSchool', JSON.stringify({
-          id: school.id,
-          schoolName: school.schoolName,
-          logoUrl,
-        }))
-        window.dispatchEvent(new CustomEvent('school-changed', {
-          detail: { logoUrl, schoolName: school.schoolName },
-        }))
+      if (isAdmin) {
+        const schoolMap = new Map<number, any>()
+        balances.forEach((item: any) => {
+          if (item.itemType?.school) {
+            const s = item.itemType.school
+            if (!schoolMap.has(s.id)) {
+              schoolMap.set(s.id, {
+                id: s.id,
+                schoolName: s.schoolName,
+                logoUrl: s.logoUrl || `/api/school/${s.id}/logo`,
+              })
+            }
+          }
+        })
+        const schoolsArray = Array.from(schoolMap.values()).sort((a, b) =>
+          String(a?.schoolName || '').localeCompare(String(b?.schoolName || ''))
+        )
+        if (schoolsArray.length > 0) {
+          sessionStorage.setItem('_invSelectedSchool', JSON.stringify(schoolsArray[0]))
+          window.dispatchEvent(new CustomEvent('school-changed', {
+            detail: { logoUrl: schoolsArray[0].logoUrl, schoolName: schoolsArray[0].schoolName },
+          }))
+        }
+      } else {
+        const school = balances?.[0]?.itemType?.school || null
+        if (school?.id) {
+          const logoUrl = school.logoUrl || `/api/school/${school.id}/logo`
+          sessionStorage.setItem('_invSelectedSchool', JSON.stringify({
+            id: school.id,
+            schoolName: school.schoolName,
+            logoUrl,
+          }))
+          window.dispatchEvent(new CustomEvent('school-changed', {
+            detail: { logoUrl, schoolName: school.schoolName },
+          }))
+        }
       }
       router.replace('/inventory/items/school')
     } catch (err: any) {
-      setError(err?.message || 'Failed to initialize school scope')
+      setError(err?.message || 'Failed to initialize inventory')
       setLoading(false)
     }
-  }, [router])
-
-  const fetchSchools = useCallback(async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/inventory/balance')
-      if (!response.ok) throw new Error('Failed to fetch inventory data')
-
-      const { payload } = await parseApiResponse(response)
-      const items = payload.balances || payload.data || []
-
-      const schoolMap = new Map<number, any>()
-      items.forEach((item: any) => {
-        if (item.itemType?.school) {
-          const s = item.itemType.school
-          if (!schoolMap.has(s.id)) {
-            schoolMap.set(s.id, { ...s, itemTypeCount: new Set(), totalQuantity: 0 })
-          }
-          const entry = schoolMap.get(s.id)
-          entry.itemTypeCount.add(item.itemTypeId)
-          entry.totalQuantity += item.quantity
-        }
-      })
-      const schoolsArray = Array.from(schoolMap.values()).map((s) => ({
-        ...s,
-        itemTypeCount: s.itemTypeCount.size,
-      }))
-
-      // Sort schools alphabetically
-      schoolsArray.sort((a, b) => String(a?.schoolName || '').localeCompare(String(b?.schoolName || '')))
-      setSchools(schoolsArray)
-      setError(null)
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch schools')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  }, [isAdmin, router])
 
   useEffect(() => {
     if (role === 'UNKNOWN') return
-    if (!isAdmin) {
-      initNonAdmin()
-    } else {
-      fetchSchools()
-    }
-  }, [role, isAdmin, fetchSchools, initNonAdmin])
-
-  const handleSchoolClick = (school: any) => {
-    sessionStorage.setItem('_invSelectedSchool', JSON.stringify(school))
-    router.push('/inventory/items/school')
-  }
-
-  if (loading) return <LoadingSpinner message="Loading items..." />
+    initInventory()
+  }, [role, initInventory])
 
   if (error) {
     return (
@@ -116,51 +91,11 @@ export default function InventoryPage() {
         message={error}
         onRetry={() => {
           setError(null)
-          setLoading(true)
-          if (!isAdmin) initNonAdmin()
-          else fetchSchools()
+          initInventory()
         }}
       />
     )
   }
 
-  if (!isAdmin) return <LoadingSpinner message="Redirecting..." />
-
-  return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: 'var(--color-darker)' }}>
-          Inventory by Items
-        </Typography>
-      </Box>
-
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <nav className="flex items-center gap-2 text-sm whitespace-nowrap">
-          <span className="text-gray-900 font-semibold">Schools</span>
-        </nav>
-
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-          <FormControl size="small" sx={{ minWidth: 220 }}>
-            <InputLabel id="school-label">School</InputLabel>
-            <Select
-              labelId="school-label"
-              label="School"
-              value="All"
-              onChange={(e) => {
-                if (e.target.value !== 'All') {
-                  const school = schools.find((s) => s.id === e.target.value)
-                  if (school) handleSchoolClick(school)
-                }
-              }}
-            >
-              <MenuItem value="All"><em>All</em></MenuItem>
-              {schools.map((s) => (
-                <MenuItem key={s.id} value={s.id}>{s.schoolName}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-      </div>
-    </Box>
-  )
+  return <LoadingSpinner message="Loading inventory items..." />
 }
