@@ -85,6 +85,17 @@ const CATEGORY_COLOUR_FALLBACKS: Record<string, Record<string, string>> = {
   },
 }
 
+const GENERIC_CATEGORY_FALLBACKS: Record<string, string> = {
+  'Belt': '/images/Belt.png',
+  'Cap': '/images/Cap.png',
+  'Tie': '/images/Tie.png',
+  'Others': '/images/Others.png',
+  'Gym Shorts': '/images/Gym Shorts.png',
+  'Uniform Shirt': '/images/Graphic - Shirt.png',
+  'Uniform Shorts': '/images/Graphic - Shorts.png',
+  'Uniform Skirt': '/images/Graphic - Skirt.png',
+}
+
 /**
  * Builds the public Supabase Storage URL for a uniform graphic or preset asset.
  *
@@ -92,7 +103,7 @@ const CATEGORY_COLOUR_FALLBACKS: Record<string, Record<string, string>> = {
  * @param categoryName - The category name from the DB (e.g., "PE Shirt")
  * @param colourName   - The primary colour name from the DB (e.g., "Maroon")
  * @param rawImageUrl  - Optional existing image URL or relative path from DB
- * @returns            - Full public URL or `null` if no asset is available
+ * @returns            - Full public URL or `/images/...` fallback or `null`
  */
 export function getUniformImageUrl(
   supabaseUrl: string,
@@ -106,6 +117,9 @@ export function getUniformImageUrl(
       return trimmed
     }
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed
+    if (cleanPath.startsWith('images/')) {
+      return `/${cleanPath}`
+    }
     const baseUrl = supabaseUrl || process.env.NEXT_PUBLIC_SUPABASE_URL || ''
     if (baseUrl) {
       return `${baseUrl}/storage/v1/object/public/static-assets/${cleanPath}`
@@ -113,17 +127,28 @@ export function getUniformImageUrl(
     return `/${cleanPath}`
   }
 
-  if (!supabaseUrl || !categoryName || !colourName) return null
+  if (categoryName && GENERIC_CATEGORY_FALLBACKS[categoryName] && (!colourName || ['Belt', 'Cap', 'Tie', 'Others', 'Gym Shorts'].includes(categoryName))) {
+    return GENERIC_CATEGORY_FALLBACKS[categoryName]
+  }
+
+  if (!supabaseUrl || !categoryName || !colourName) {
+    return categoryName && GENERIC_CATEGORY_FALLBACKS[categoryName] ? GENERIC_CATEGORY_FALLBACKS[categoryName] : null
+  }
 
   const categoryEntry = CATEGORY_TO_STORAGE[categoryName]
-  if (!categoryEntry) return null
+  if (!categoryEntry) {
+    return GENERIC_CATEGORY_FALLBACKS[categoryName] || null
+  }
 
   const colourSlug =
     CATEGORY_COLOUR_FALLBACKS[categoryName]?.[colourName] ||
     COLOUR_TO_STORAGE[colourName]
-  if (!colourSlug) return null
+  if (!colourSlug) {
+    return GENERIC_CATEGORY_FALLBACKS[categoryName] || null
+  }
 
   const storagePath = `uniform-graphics/general/${categoryEntry.folder}/${categoryEntry.prefix}_-_${colourSlug}.png`
 
   return `${supabaseUrl}/storage/v1/object/public/static-assets/${storagePath}`
 }
+

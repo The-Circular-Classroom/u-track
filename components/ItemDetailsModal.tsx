@@ -387,7 +387,19 @@ export default function ItemDetailsModal({
                       value={localSchoolId}
                       onChange={(e) => {
                         const newId = e.target.value;
-                        dispatch({ type: 'PATCH', payload: { localSchoolId: newId } });
+                        dispatch({
+                          type: 'PATCH',
+                          payload: {
+                            localSchoolId: newId,
+                            selectedCategoryName: '',
+                            selectedColourName: '',
+                            selectedSizeName: '',
+                            selectedGender: '',
+                            selectedMaterial: '',
+                            selectedPattern: '',
+                            selectedDonationDriveId: '',
+                          },
+                        });
                         if (newId) onSchoolChange?.(newId);
                       }}
                       className={selectCls}

@@ -296,6 +296,9 @@ export default function InventoryOverviewPage() {
         >
           Inventory Overview
         </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Check the overall status of uniforms for use
+        </Typography>
       </Box>
 
       {showSchoolSelector && (

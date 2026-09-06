@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getRoleFromSession } from "@/utils/auth";
 import { resolveSchool, buildColorGroups, toSlug, slugToLabel, toColorSlug } from "@/utils/inventoryNav";
+import { getColourDisplayName } from "@/utils/colourDisplayName";
 
 import { Box, Typography } from "@mui/material";
 import ColorCard from "@/components/ColorCard";
@@ -20,6 +21,7 @@ export default function SchoolCategoryContent() {
   const router = useRouter();
 
   const [role, setRole] = useState("UNKNOWN");
+  const isAdmin = role === "TCC_ADMIN";
   const [school, setSchool] = useState(null);
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,15 +43,19 @@ export default function SchoolCategoryContent() {
     if (!school?.id) return;
     try {
       setLoading(true);
-      const res = await fetch(
-        `/api/inventory/balance?schoolId=${school.id}`
-      );
+      const url = school.id === 'all'
+        ? `/api/inventory/balance`
+        : `/api/inventory/balance?schoolId=${school.id}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch balances");
       const result = await res.json();
       const rows = (result.balances || result.data || []).filter(
         (row) => toSlug(row?.itemType?.category?.categoryName || "") === categorySlug
       );
-      const cols = buildColorGroups(rows);
+      const cols = buildColorGroups(rows).map((c) => ({
+        ...c,
+        displayName: getColourDisplayName(c.colorName, isAdmin),
+      }));
 
       setColors(cols);
       setError(null);

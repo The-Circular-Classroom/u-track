@@ -23,7 +23,7 @@ export default function AddMethodModal({
         {/* Header */}
         <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-            How would you like to add new pieces?
+            Add new pieces by uploading the Uniform Donation template
           </h2>
           <button
             type="button"

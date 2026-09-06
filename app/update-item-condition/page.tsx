@@ -26,10 +26,12 @@ import CustomErrorButton from "@/components/ui/CustomErrorButton";
 import AddMethodModal from "@/components/AddMethodModal";
 import ItemDetailsModal from "@/components/ItemDetailsModal";
 import UploadCSVModal from "@/components/UploadCSVModal";
+import DownloadCSVTemplateModal from "@/components/DownloadCSVTemplateModal";
 
 export default function UpdateItemCondition() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [schoolId, setSchoolId] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -42,6 +44,7 @@ export default function UpdateItemCondition() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [manualAddOpen, setManualAddOpen] = useState(false);
   const [csvUploadOpen, setCsvUploadOpen] = useState(false);
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
 
   // ── Modal filter state ──────────────────────────────────────────────────────
   const [filterStatus, setFilterStatus] = useState("");
@@ -75,6 +78,9 @@ export default function UpdateItemCondition() {
     fetch(`${apiUrl}/api/users/me`)
       .then((res) => res.json())
       .then((json) => {
+        if (json?.id) {
+          setCurrentUserId(json.id);
+        }
         if (!admin) {
           if (json?.school?.id) {
             setSchoolId(json.school.id);
@@ -222,7 +228,7 @@ export default function UpdateItemCondition() {
         fromStoredAt: item.storedAt,
         toStoredAt: newCondition[item.id]?.storedAt || item.storedAt,
         transactionType: 'StatusChange',
-        userId: null,
+        userId: currentUserId || null,
       }));
 
       // Submit each transaction individually
@@ -1259,8 +1265,13 @@ export default function UpdateItemCondition() {
         }}
         onDownloadTemplate={() => {
           setAddModalOpen(false);
-          // Insert download template logic if applicable
+          setTemplateModalOpen(true);
         }}
+      />
+      <DownloadCSVTemplateModal
+        isOpen={templateModalOpen}
+        onClose={() => setTemplateModalOpen(false)}
+        isAdmin={isAdmin}
       />
       <ItemDetailsModal
         isOpen={manualAddOpen}

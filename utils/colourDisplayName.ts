@@ -26,6 +26,9 @@ const NUANCED_TO_SIMPLE_MAP: Record<string, string> = {
   'Medium Purple': 'Purple',
   'Light Purple': 'Purple',
   'Dark Purple': 'Purple',
+  'Medium Brown': 'Brown',
+  'Light Brown': 'Brown',
+  'Dark Brown': 'Brown',
   'Turqoise': 'Turquoise',
 };
 

@@ -34,7 +34,7 @@ const toTitleCase = (str: string) => {
   )
 }
 
-function groupByCategoryGroup(rows: any[]) {
+function groupByCategoryGroup(rows: any[], isAdmin: boolean = false) {
   const groupMap = new Map<string, any>()
 
   rows.forEach((row) => {
@@ -105,15 +105,16 @@ function groupByCategoryGroup(rows: any[]) {
       subCategories,
       isMulti,
       imageUrl: isMulti ? null : (subCategories[0]?.imageUrl || null),
-      totalQuantity:
-        g.schoolStock + g.psgActivities + g.forRepurposing + g.recyclingDisposal,
+      totalQuantity: isAdmin
+        ? g.schoolStock + g.psgActivities + g.forRepurposing
+        : g.schoolStock + g.psgActivities,
       colorOptions: Array.from(g.colors.values()),
       colorCount: g.colors.size,
     }
   })
 }
 
-function expandByGender(groupedCards: any[]) {
+function expandByGender(groupedCards: any[], isAdmin: boolean = false) {
   const result: any[] = []
 
   groupedCards.forEach((card) => {
@@ -165,7 +166,9 @@ function expandByGender(groupedCards: any[]) {
         psgActivities,
         forRepurposing,
         recyclingDisposal,
-        totalQuantity: schoolStock + psgActivities + forRepurposing + recyclingDisposal,
+        totalQuantity: isAdmin
+          ? schoolStock + psgActivities + forRepurposing
+          : schoolStock + psgActivities,
         colorOptions: Array.from(colorMap.values()),
         colorCount: colorMap.size,
         colors: colorMap,
@@ -302,7 +305,7 @@ export default function UniformOverviewPage() {
   useEffect(() => {
     if (
       schools.length > 0 &&
-      (!selectedSchoolId || !schools.some((s) => String(s.id) === String(selectedSchoolId)))
+      (!selectedSchoolId || (selectedSchoolId !== 'all' && !schools.some((s) => String(s.id) === String(selectedSchoolId))))
     ) {
       setSelectedSchoolId(String(schools[0].id))
     }
@@ -312,14 +315,16 @@ export default function UniformOverviewPage() {
 
   const cards = useMemo(() => {
     if (!selectedSchoolId) return []
-    const scoped = rows.filter(
-      (row) => String(row?.itemType?.school?.id) === String(selectedSchoolId)
-    )
-    const sorted = groupByCategoryGroup(scoped).sort(
+    const scoped = selectedSchoolId === 'all'
+      ? rows
+      : rows.filter(
+          (row) => String(row?.itemType?.school?.id) === String(selectedSchoolId)
+        )
+    const sorted = groupByCategoryGroup(scoped, isAdmin).sort(
       byCategoryOrder((c: any) => c?.groupKey)
     )
-    return expandByGender(sorted).filter((card: any) => card.totalQuantity > 0)
-  }, [rows, selectedSchoolId])
+    return expandByGender(sorted, isAdmin).filter((card: any) => card.totalQuantity > 0)
+  }, [rows, selectedSchoolId, isAdmin])
 
   const filteredCards = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -430,11 +435,11 @@ export default function UniformOverviewPage() {
       </Box>
 
       <div className="flex items-center gap-3 mb-4">
-        {selectedSchool?.logoUrl && (
+        {selectedSchoolId !== 'all' && selectedSchool?.logoUrl && (
           <img src={selectedSchool.logoUrl} alt="School Logo" className="h-8 w-auto object-contain" />
         )}
         <h2 className="text-xl font-bold text-gray-900">
-          {toTitleCase(selectedSchool?.schoolName)}
+          {selectedSchoolId === 'all' ? 'All Schools' : toTitleCase(selectedSchool?.schoolName)}
         </h2>
       </div>
 
@@ -492,6 +497,7 @@ export default function UniformOverviewPage() {
                 value={selectedSchoolId}
                 onChange={handleSchoolChange}
               >
+                <MenuItem value="all">All Schools</MenuItem>
                 {schools.map((s) => (
                   <MenuItem key={s.id} value={String(s.id)}>
                     {toTitleCase(s.schoolName)}
@@ -596,26 +602,15 @@ export default function UniformOverviewPage() {
           </Box>
 
           {isAdmin && (
-            <>
-              <Box sx={{ mt: 3 }}>
-                <InventorySection
-                  title="For Repurposing"
-                  items={baseInventoryData.filter(
-                    (r: any) => r.itemStatus === 'ForRepurpose' && r.storedAt === 'TCC'
-                  )}
-                  onRowClick={(item: any) => openPreview(item)}
-                />
-              </Box>
-              <Box sx={{ mt: 3 }}>
-                <InventorySection
-                  title="For Recycling/Disposal"
-                  items={baseInventoryData.filter(
-                    (r: any) => r.itemStatus === 'Disposed' && r.storedAt === 'Exited'
-                  )}
-                  onRowClick={(item: any) => openPreview(item)}
-                />
-              </Box>
-            </>
+            <Box sx={{ mt: 3 }}>
+              <InventorySection
+                title="For Repurposing"
+                items={baseInventoryData.filter(
+                  (r: any) => r.itemStatus === 'ForRepurpose' && r.storedAt === 'TCC'
+                )}
+                onRowClick={(item: any) => openPreview(item)}
+              />
+            </Box>
           )}
         </>
       )}

@@ -122,8 +122,22 @@ export async function POST(request: NextRequest) {
     userId,
   } = body
 
+  let effectiveUserId = userId
+  if (!effectiveUserId) {
+    const headerUserId = request.headers.get('x-user-id')
+    if (headerUserId) {
+      const user = await prisma.user.findUnique({
+        where: { supabaseAuthId: headerUserId },
+        select: { id: true },
+      })
+      if (user) {
+        effectiveUserId = user.id
+      }
+    }
+  }
+
   // Validate required fields
-  if (!itemTypeId || !sizeOptionId || !toStatus || !toStoredAt || !quantity || !transactionType || !userId) {
+  if (!itemTypeId || !sizeOptionId || !toStatus || !toStoredAt || !quantity || !transactionType || !effectiveUserId) {
     return NextResponse.json(
       {
         error: 'missing_field',
@@ -235,7 +249,7 @@ export async function POST(request: NextRequest) {
         quantity,
         transactionType: transactionType as 'DonationIn' | 'Transfer' | 'StatusChange' | 'Sale' | 'Repurposing' | 'Disposal',
         donationDriveId: body.donationDriveId ?? null,
-        userId,
+        userId: effectiveUserId,
         remarks: body.remarks ?? null,
       },
       include: {

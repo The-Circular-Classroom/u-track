@@ -42,18 +42,11 @@ export default function ItemsDetailView({ items = [], isAdmin = false, schoolLog
           onRowClick={openPreview}
         />
         {isAdmin && (
-          <>
-            <InventorySection
-              title="For Repurposing"
-              items={items.filter((r) => r.itemStatus === "ForRepurpose" && r.storedAt === "TCC")}
-              onRowClick={openPreview}
-            />
-            <InventorySection
-              title="For Recycling/Disposal"
-              items={items.filter((r) => r.itemStatus === "Disposed" && r.storedAt === "Exited")}
-              onRowClick={openPreview}
-            />
-          </>
+          <InventorySection
+            title="For Repurposing"
+            items={items.filter((r) => r.itemStatus === "ForRepurpose" && r.storedAt === "TCC")}
+            onRowClick={openPreview}
+          />
         )}
       </div>
 

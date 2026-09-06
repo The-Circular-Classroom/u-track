@@ -92,9 +92,10 @@ export default function SchoolItemTypesContent() {
     if (!school?.id) return;
     try {
       setLoading(true);
-      const res = await fetch(
-        `/api/inventory/balance?schoolId=${school.id}`
-      );
+      const url = school.id === 'all'
+        ? `/api/inventory/balance`
+        : `/api/inventory/balance?schoolId=${school.id}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch item types");
 
       const result = await res.json();
@@ -154,11 +155,9 @@ export default function SchoolItemTypesContent() {
       const grouped = Array.from(categoryMap.values())
         .map((g) => ({
           ...g,
-          totalQuantity:
-            g.schoolStock +
-            g.psgActivities +
-            g.forRepurposing +
-            g.recyclingDisposal,
+          totalQuantity: isAdmin
+            ? g.schoolStock + g.psgActivities + g.forRepurposing
+            : g.schoolStock + g.psgActivities,
           colorOptions: Array.from(g.colors.values()),
           colorCount: g.colors.size,
           imageUrl: g.items[0]?.itemType?.imageUrl || null,
@@ -225,7 +224,7 @@ export default function SchoolItemTypesContent() {
             Inventory by Items
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Current Inventory as of {currentDate}. Click on an item to find out more. Note: The display of sizes is optional.
+            View quantities of individual uniform items
           </Typography>
         </Box>
       </Box>
@@ -240,7 +239,17 @@ export default function SchoolItemTypesContent() {
               label="School"
               value={school?.id ? String(school.id) : ''}
               onChange={(e) => {
-                const s = schools.find((x) => String(x.id) === String(e.target.value));
+                const val = e.target.value;
+                if (val === 'all') {
+                  const allObj = { id: 'all', schoolName: 'All Schools' };
+                  setSchool(allObj);
+                  sessionStorage.setItem('_invSelectedSchool', JSON.stringify(allObj));
+                  window.dispatchEvent(new CustomEvent('school-changed', {
+                    detail: { logoUrl: null, schoolName: 'All Schools' },
+                  }));
+                  return;
+                }
+                const s = schools.find((x) => String(x.id) === String(val));
                 if (s) {
                   setSchool(s);
                   sessionStorage.setItem('_invSelectedSchool', JSON.stringify(s));
@@ -250,6 +259,7 @@ export default function SchoolItemTypesContent() {
                 }
               }}
             >
+              <MenuItem value="all">All Schools</MenuItem>
               {schools.map((s) => (
                 <MenuItem key={s.id} value={String(s.id)}>
                   {s.schoolName}
@@ -262,11 +272,11 @@ export default function SchoolItemTypesContent() {
 
       {/* ── School Name & Logo ── */}
       <div className="flex items-center gap-3 mb-4">
-        {school?.logoUrl && (
+        {school?.id !== 'all' && school?.logoUrl && (
           <img src={school.logoUrl} alt="School Logo" className="h-8 w-auto object-contain" />
         )}
         <h2 className="text-xl font-bold text-gray-900">
-          {schoolName}
+          {school?.id === 'all' ? 'All Schools' : schoolName}
         </h2>
       </div>
 

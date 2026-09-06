@@ -710,9 +710,9 @@ export default function DonationDrivePage() {
     if (isAdmin) {
       if (filterSchool) {
         const found = uniqueSchools.find((s) => String(s.id) === String(filterSchool));
-        return found ? found.name : "All School(s)";
+        return found ? found.name : "All Schools";
       }
-      return "All School(s)";
+      return "All Schools";
     }
     const resolved =
       schoolName || donationDrives.find((d) => d.school?.schoolName)?.school?.schoolName;

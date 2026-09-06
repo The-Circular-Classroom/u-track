@@ -15,6 +15,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import CustomErrorButton from "@/components/ui/CustomErrorButton";
 import ItemsDetailView from "@/components/inventory/ItemsDetailView";
 import SnackbarAlert from "@/components/SnackbarAlert";
+import { getColourDisplayName } from "@/utils/colourDisplayName";
 
 /**
  * Admin items view — /inventory/items/school/[category]/[color]
@@ -37,7 +38,7 @@ export default function SchoolCategoryColorContent() {
 
   const apiUrl = '';
   const categoryLabel = useMemo(() => slugToLabel(categorySlug), [categorySlug]);
-  const colorLabel = useMemo(() => colorSlugToLabel(colorSlug), [colorSlug]);
+  const colorLabel = useMemo(() => getColourDisplayName(colorSlugToLabel(colorSlug), isAdmin), [colorSlug, isAdmin]);
 
   useEffect(() => { setRole(getRoleFromSession()); }, []);
 
@@ -52,9 +53,10 @@ export default function SchoolCategoryColorContent() {
     if (!school?.id) return;
     try {
       setLoading(true);
-      const res = await fetch(
-        `/api/inventory/balance?schoolId=${school.id}`
-      );
+      const url = school.id === 'all'
+        ? `/api/inventory/balance`
+        : `/api/inventory/balance?schoolId=${school.id}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch balances");
       const result = await res.json();
       const catRows = (result.balances || result.data || []).filter(
@@ -110,7 +112,7 @@ export default function SchoolCategoryColorContent() {
         </Box>
       </Box>
 
-      {/* ── Breadcrumb: Schools / School Name / Category ── */}
+      {/* ── Breadcrumb: Schools / School Name / Category / Color ── */}
       <div className="mb-4 overflow-x-auto">
         <nav className="flex items-center gap-2 text-sm whitespace-nowrap">
           <button type="button" onClick={() => router.push("/inventory/items")}
@@ -123,7 +125,21 @@ export default function SchoolCategoryColorContent() {
             {schoolName}
           </button>
           <span className="text-gray-400">/</span>
-          <span className="text-gray-900 font-semibold">{categoryLabel}</span>
+          {colorCount > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={() => router.push(`/inventory/items/school/${categorySlug}`)}
+                className="cursor-pointer text-[var(--color-main)] hover:underline"
+              >
+                {categoryLabel}
+              </button>
+              <span className="text-gray-400">/</span>
+              <span className="text-gray-900 font-semibold">{colorLabel}</span>
+            </>
+          ) : (
+            <span className="text-gray-900 font-semibold">{categoryLabel}</span>
+          )}
         </nav>
       </div>
 

@@ -75,7 +75,15 @@ export default function InventoryBreakdownCard({ items = [], isAdmin, schoolLogo
             value: psgActivities,
             bg: "#fef3c7",
             color: "#b45309",
-            renderIcon: () => <GroupsOutlinedIcon sx={{ fontSize: 22, color: "#b45309" }} />,
+            renderIcon: () => (
+                <Image
+                    src="/images/Graphic - PSG and User.jpg"
+                    alt="PSG Activities"
+                    width={28}
+                    height={28}
+                    className="object-contain rounded"
+                />
+            ),
         },
         ...(isAdmin
             ? [
