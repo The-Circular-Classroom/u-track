@@ -24,6 +24,7 @@ import {
   buildSchoolCollectionOverview,
   buildSchoolInventoryByItem,
 } from "@/utils/analytics";
+import { resolveSchoolLogoUrl } from "@/lib/school/logo";
 
 const CORE_COLORS = {
   schoolStock: "#639922",
@@ -112,7 +113,7 @@ export default function InventoryOverviewPage() {
       if (!response.ok) throw new Error("Failed to fetch inventory data");
 
       const result = await response.json();
-      setRows(result.data || []);
+      setRows(result.balances || result.data || []);
       setError(null);
     } catch (err) {
       console.error("Error fetching schools:", err);
@@ -132,7 +133,11 @@ export default function InventoryOverviewPage() {
     rows.forEach((row) => {
       const school = row?.itemType?.school;
       if (school?.id && !map.has(school.id)) {
-        map.set(school.id, { id: school.id, schoolName: school.schoolName });
+        map.set(school.id, {
+          id: school.id,
+          schoolName: school.schoolName,
+          logoUrl: school.logoUrl ? resolveSchoolLogoUrl(school.logoUrl, school.id) : null,
+        });
       }
     });
     return Array.from(map.values()).sort((a, b) =>
@@ -141,10 +146,10 @@ export default function InventoryOverviewPage() {
   }, [rows]);
 
   useEffect(() => {
-    if (schools.length === 1 && !selectedSchoolId) {
-      setSelectedSchoolId(schools[0].id);
+    if (schools.length > 0 && !selectedSchoolId) {
+      setSelectedSchoolId(isAdmin ? "all" : String(schools[0].id));
     }
-  }, [schools, selectedSchoolId]);
+  }, [schools, selectedSchoolId, isAdmin]);
 
   const showSchoolSelector = isAdmin && schools.length > 1;
 
@@ -262,7 +267,6 @@ export default function InventoryOverviewPage() {
       if (!entry.imageUrl && it.imageUrl) entry.imageUrl = it.imageUrl;
     });
 
-    // Sort by canonical category display order
     return Array.from(map.values()).sort((a, b) => {
       return getCategoryOrder(a.categoryName) - getCategoryOrder(b.categoryName);
     });
@@ -334,10 +338,19 @@ export default function InventoryOverviewPage() {
 
       {selectedSchoolId && !dataLoading && collectionOverview && (
         <>
-          {/* School name */}
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {toTitleCase(selectedSchoolName)}
-          </h2>
+          {/* School name & logo */}
+          <div className="flex items-center gap-3 mb-4">
+            {selectedSchoolId !== 'all' && selectedSchool?.logoUrl && (
+              <img
+                src={selectedSchool.logoUrl}
+                alt="School Logo"
+                className="h-8 w-auto object-contain"
+              />
+            )}
+            <h2 className="text-xl font-bold text-gray-900">
+              {toTitleCase(selectedSchoolName)}
+            </h2>
+          </div>
 
           {/* ── Current Inventory ───────────────────────────────────────── */}
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
@@ -346,7 +359,7 @@ export default function InventoryOverviewPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 mb-6">
             {/* Category cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-3`}>
               {/* Total available pieces */}
               <div className="rounded-xl border border-[var(--color-main)]/20 bg-[var(--color-main)]/5 p-3 flex flex-col items-center justify-center text-center">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1 leading-tight">
@@ -365,15 +378,31 @@ export default function InventoryOverviewPage() {
                   key={cfg.key}
                   className={`rounded-xl border ${cfg.border} ${cfg.bg} p-3 flex flex-col items-center text-center`}
                 >
-                  <span
-                    className="w-3 h-3 rounded-full mb-2 flex-shrink-0"
-                    style={{ background: CORE_COLORS[cfg.key] }}
-                  />
-                  <p
-                    className={`text-xs font-semibold uppercase tracking-wide ${cfg.sub} mb-2 leading-tight`}
-                  >
-                    {cfg.label}
-                  </p>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    {cfg.key === 'psg' ? (
+                      <img
+                        src="/images/Graphic - PSG and User.jpg"
+                        alt="PSG"
+                        className="w-5 h-5 object-contain rounded"
+                      />
+                    ) : cfg.key === 'repurposing' ? (
+                      <img
+                        src="/images/Logo-Symbol-green-stem.png"
+                        alt="Repurposing"
+                        className="w-5 h-5 object-contain"
+                      />
+                    ) : (
+                      <span
+                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        style={{ background: CORE_COLORS[cfg.key] }}
+                      />
+                    )}
+                    <p
+                      className={`text-xs font-semibold uppercase tracking-wide ${cfg.sub} leading-tight`}
+                    >
+                      {cfg.label}
+                    </p>
+                  </div>
 
                   {/* # pieces */}
                   <div className="w-full rounded-lg bg-white/70 px-2 py-2 mb-2 flex-1 flex flex-col justify-center">

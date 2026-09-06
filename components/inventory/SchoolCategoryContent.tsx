@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { getRoleFromSession } from "@/utils/auth";
 import { getCategoryOrder, getSubCategoryOrder } from "@/utils/categoryOrder";
 import { getUniformImageUrl } from "@/lib/inventory/uniformImageUrl";
+import { resolveSchoolLogoUrl } from "@/lib/school/logo";
 
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { FaCheck } from "react-icons/fa6";
@@ -63,7 +64,7 @@ export default function SchoolItemTypesContent() {
             map.set(s.id, {
               id: s.id,
               schoolName: s.schoolName,
-              logoUrl: s.logoUrl || `/api/school/${s.id}/logo`,
+              logoUrl: resolveSchoolLogoUrl(s.logoUrl, s.id),
             });
           }
         });
@@ -273,7 +274,7 @@ export default function SchoolItemTypesContent() {
       {/* ── School Name & Logo ── */}
       <div className="flex items-center gap-3 mb-4">
         {school?.id !== 'all' && school?.logoUrl && (
-          <img src={school.logoUrl} alt="School Logo" className="h-8 w-auto object-contain" />
+          <img src={resolveSchoolLogoUrl(school.logoUrl, school.id)} alt="School Logo" className="h-8 w-auto object-contain" />
         )}
         <h2 className="text-xl font-bold text-gray-900">
           {school?.id === 'all' ? 'All Schools' : schoolName}

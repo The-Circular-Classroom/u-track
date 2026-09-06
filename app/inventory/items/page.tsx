@@ -7,6 +7,7 @@ import { getRoleFromSession } from '@/utils/auth'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import CustomErrorButton from '@/components/ui/CustomErrorButton'
 import { parseApiResponse } from '@/utils/apiResponse'
+import { resolveSchoolLogoUrl } from '@/lib/school/logo'
 
 export default function InventoryPage() {
   const [role, setRole] = useState('UNKNOWN')
@@ -44,7 +45,7 @@ export default function InventoryPage() {
               schoolMap.set(s.id, {
                 id: s.id,
                 schoolName: s.schoolName,
-                logoUrl: s.logoUrl || `/api/school/${s.id}/logo`,
+                logoUrl: resolveSchoolLogoUrl(s.logoUrl, s.id),
               })
             }
           }
@@ -61,7 +62,7 @@ export default function InventoryPage() {
       } else {
         const school = balances?.[0]?.itemType?.school || null
         if (school?.id) {
-          const logoUrl = school.logoUrl || `/api/school/${school.id}/logo`
+          const logoUrl = resolveSchoolLogoUrl(school.logoUrl, school.id)
           sessionStorage.setItem('_invSelectedSchool', JSON.stringify({
             id: school.id,
             schoolName: school.schoolName,

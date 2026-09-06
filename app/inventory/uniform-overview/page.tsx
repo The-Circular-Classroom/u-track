@@ -25,6 +25,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import CustomErrorButton from '@/components/ui/CustomErrorButton'
 import { parseApiResponse } from '@/utils/apiResponse'
 import { getUniformImageUrl } from '@/lib/inventory/uniformImageUrl'
+import { resolveSchoolLogoUrl } from '@/lib/school/logo'
 
 const toTitleCase = (str: string) => {
   if (!str) return str
@@ -293,7 +294,7 @@ export default function UniformOverviewPage() {
         map.set(school.id, {
           id: school.id,
           schoolName: school.schoolName,
-          logoUrl: school.logoUrl || `/api/school/${school.id}/logo`,
+          logoUrl: resolveSchoolLogoUrl(school.logoUrl, school.id),
         })
       }
     })
@@ -436,7 +437,7 @@ export default function UniformOverviewPage() {
 
       <div className="flex items-center gap-3 mb-4">
         {selectedSchoolId !== 'all' && selectedSchool?.logoUrl && (
-          <img src={selectedSchool.logoUrl} alt="School Logo" className="h-8 w-auto object-contain" />
+          <img src={resolveSchoolLogoUrl(selectedSchool.logoUrl, selectedSchool.id)} alt="School Logo" className="h-8 w-auto object-contain" />
         )}
         <h2 className="text-xl font-bold text-gray-900">
           {selectedSchoolId === 'all' ? 'All Schools' : toTitleCase(selectedSchool?.schoolName)}
