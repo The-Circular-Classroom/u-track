@@ -164,11 +164,11 @@ export async function proxy(request: NextRequest) {
       minRoleForPage = 'Admin'
     } else if (
       pathname.startsWith('/configuration') ||
-      pathname.startsWith('/inventory') ||
       pathname.startsWith('/analytics')
     ) {
       minRoleForPage = 'SchoolStaff'
     } else if (
+      pathname.startsWith('/inventory') ||
       pathname.startsWith('/donation-drives') ||
       pathname.startsWith('/update-item-condition')
     ) {

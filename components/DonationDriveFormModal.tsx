@@ -182,12 +182,12 @@ export default function DonationDriveFormModal({ isAdmin, onClose, editData = nu
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    drive_name: form.driveName,
-                    start_date: form.startDate,
-                    end_date: form.endDate,
+                    driveName: form.driveName,
+                    startDate: form.startDate,
+                    endDate: form.endDate,
                     location: form.location,
-                    school_id: form.schoolId ? parseInt(form.schoolId) : null,
-                    ...(loggedInUserId ? { created_by_user_id: loggedInUserId } : {}),
+                    schoolId: form.schoolId ? parseInt(form.schoolId) : null,
+                    ...(loggedInUserId ? { createdByUserId: loggedInUserId } : {}),
                 }),
             });
 

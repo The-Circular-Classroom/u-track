@@ -79,21 +79,14 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   const role = request.headers.get('x-user-role')
-  if (!requireRole(role, 'SchoolStaff')) {
+  if (!requireRole(role, 'PsgVolunteer')) {
     return NextResponse.json(
-      { error: 'forbidden', message: 'SchoolStaff access required' },
+      { error: 'forbidden', message: 'PsgVolunteer access required' },
       { status: 403 }
     )
   }
 
-  let body: {
-    driveName?: string
-    startDate?: string
-    endDate?: string
-    location?: string
-    schoolId?: number
-    createdByUserId?: number
-  }
+  let body: Record<string, unknown>
   try {
     body = await request.json()
   } catch {
@@ -103,7 +96,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { driveName, startDate, endDate, location, schoolId, createdByUserId } = body
+  // Support both camelCase and snake_case field names
+  const driveName = (body.driveName ?? body.drive_name) as string | undefined
+  const startDate = (body.startDate ?? body.start_date) as string | undefined
+  const endDate = (body.endDate ?? body.end_date) as string | undefined
+  const location = body.location as string | undefined
+  const schoolId = (body.schoolId ?? body.school_id) as number | undefined
+  const createdByUserId = (body.createdByUserId ?? body.created_by_user_id) as number | undefined
 
   if (!driveName || !startDate || !endDate || !location || !createdByUserId) {
     return NextResponse.json(

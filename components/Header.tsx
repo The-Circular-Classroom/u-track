@@ -187,9 +187,13 @@ export default function Header() {
                 )}
               </div>
 
-              {mounted && !hideHeaderUI && (role === 'TCC_ADMIN' || role === 'SCHOOL_STAFF') && (
+              {mounted && !hideHeaderUI && (role === 'TCC_ADMIN' || role === 'SCHOOL_STAFF' || role === 'PSG') && (() => {
+                const visibleApps = role === 'PSG'
+                  ? APPS.filter((app) => app.key === 'inventory' || app.key === 'donation-drives')
+                  : APPS
+                return (
                 <div className="flex items-center bg-gray-100 rounded-lg p-1 gap-0.5">
-                  {APPS.map((app) => {
+                  {visibleApps.map((app) => {
                     const isActive = app.key === currentApp.key
                     return (
                       <Link
@@ -206,7 +210,8 @@ export default function Header() {
                     )
                   })}
                 </div>
-              )}
+                )
+              })()}
 
             </div>
 

@@ -56,9 +56,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const role = request.headers.get('x-user-role')
   const { id } = await params
 
-  if (!requireRole(role, 'SchoolStaff')) {
+  if (!requireRole(role, 'PsgVolunteer')) {
     return NextResponse.json(
-      { error: 'forbidden', message: 'SchoolStaff access required' },
+      { error: 'forbidden', message: 'PsgVolunteer access required' },
       { status: 403 }
     )
   }
@@ -71,13 +71,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     )
   }
 
-  let body: {
-    driveName?: string
-    startDate?: string
-    endDate?: string
-    location?: string
-    schoolId?: number | null
-  }
+  let body: Record<string, unknown>
   try {
     body = await request.json()
   } catch {
@@ -87,21 +81,28 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     )
   }
 
-  const updates: Record<string, unknown> = {}
-  if (body.driveName !== undefined) updates.driveName = body.driveName
-  if (body.location !== undefined) updates.location = body.location
-  if (body.schoolId !== undefined) updates.schoolId = body.schoolId
+  // Support both camelCase and snake_case field names
+  const driveName = (body.driveName ?? body.drive_name) as string | undefined
+  const locationVal = body.location as string | undefined
+  const schoolIdVal = (body.schoolId ?? body.school_id) as number | null | undefined
+  const startDateStr = (body.startDate ?? body.start_date) as string | undefined
+  const endDateStr = (body.endDate ?? body.end_date) as string | undefined
 
-  if (body.startDate !== undefined) {
-    const start = new Date(body.startDate)
+  const updates: Record<string, unknown> = {}
+  if (driveName !== undefined) updates.driveName = driveName
+  if (locationVal !== undefined) updates.location = locationVal
+  if (schoolIdVal !== undefined) updates.schoolId = schoolIdVal
+
+  if (startDateStr !== undefined) {
+    const start = new Date(startDateStr)
     if (isNaN(start.getTime())) {
       return NextResponse.json({ error: 'invalid_date', message: 'startDate must be a valid date' }, { status: 400 })
     }
     updates.startDate = start
   }
 
-  if (body.endDate !== undefined) {
-    const end = new Date(body.endDate)
+  if (endDateStr !== undefined) {
+    const end = new Date(endDateStr)
     if (isNaN(end.getTime())) {
       return NextResponse.json({ error: 'invalid_date', message: 'endDate must be a valid date' }, { status: 400 })
     }
