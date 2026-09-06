@@ -120,7 +120,7 @@ export function getUserProfileFromSession(): any | null {
   }
 }
 
-export function getUserSchoolFromSession(): { id: number; name: string } | null {
+export function getUserSchoolFromSession(): { id: number; name: string; logoUrl?: string | null } | null {
   const profile = getUserProfileFromSession()
   return profile?.school || null
 }
