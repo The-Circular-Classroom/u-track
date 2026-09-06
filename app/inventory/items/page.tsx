@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { getRoleFromSession } from '@/utils/auth'
+import { getRoleFromSession, getUserSchoolFromSession } from '@/utils/auth'
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import CustomErrorButton from '@/components/ui/CustomErrorButton'
@@ -24,8 +24,62 @@ export default function InventoryPage() {
   const initInventory = useCallback(async () => {
     try {
       setLoading(true)
+      const userSchool = getUserSchoolFromSession()
+
+      if (!isAdmin) {
+        const stored = sessionStorage.getItem('_invSelectedSchool')
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            if (!userSchool?.id || String(parsed.id) === String(userSchool.id)) {
+              router.replace('/inventory/items/school')
+              return
+            }
+          } catch (_) {}
+        }
+
+        try {
+          const psgRes = await fetch('/api/school/psg')
+          if (psgRes.ok) {
+            const psgData = await psgRes.json()
+            const s = psgData.data || psgData
+            if (s?.id) {
+              const logoUrl = resolveSchoolLogoUrl(s.logoUrl, s.id)
+              sessionStorage.setItem(
+                '_invSelectedSchool',
+                JSON.stringify({
+                  id: s.id,
+                  schoolName: s.schoolName || s.name,
+                  logoUrl,
+                })
+              )
+              window.dispatchEvent(
+                new CustomEvent('school-changed', {
+                  detail: { logoUrl, schoolName: s.schoolName || s.name },
+                })
+              )
+              router.replace('/inventory/items/school')
+              return
+            }
+          }
+        } catch (_) {}
+
+        if (userSchool?.id) {
+          sessionStorage.setItem(
+            '_invSelectedSchool',
+            JSON.stringify({
+              id: userSchool.id,
+              schoolName: userSchool.name,
+              logoUrl: null,
+            })
+          )
+          router.replace('/inventory/items/school')
+          return
+        }
+      }
+
       const stored = sessionStorage.getItem('_invSelectedSchool')
-      if (stored) {
+      if (stored && isAdmin) {
         router.replace('/inventory/items/school')
         return
       }

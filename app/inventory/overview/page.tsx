@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { getRoleFromSession } from "@/utils/auth";
+import { getRoleFromSession, getUserSchoolFromSession } from "@/utils/auth";
 import { getCategoryOrder } from "@/utils/categoryOrder";
 
 import {
@@ -109,7 +109,12 @@ export default function InventoryOverviewPage() {
     try {
       setLoading(true);
 
-      const response = await fetch(`${inventoryApiUrl}/api/inventory/balance`);
+      const userSchool = getUserSchoolFromSession();
+      const url = (!isAdmin && userSchool?.id)
+        ? `${inventoryApiUrl}/api/inventory/balance?schoolId=${userSchool.id}`
+        : `${inventoryApiUrl}/api/inventory/balance`;
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch inventory data");
 
       const result = await response.json();
@@ -121,7 +126,7 @@ export default function InventoryOverviewPage() {
     } finally {
       setLoading(false);
     }
-  }, [inventoryApiUrl]);
+  }, [inventoryApiUrl, isAdmin]);
 
   useEffect(() => {
     if (role === "UNKNOWN") return;
@@ -146,8 +151,19 @@ export default function InventoryOverviewPage() {
   }, [rows]);
 
   useEffect(() => {
-    if (schools.length > 0 && !selectedSchoolId) {
-      setSelectedSchoolId(isAdmin ? "all" : String(schools[0].id));
+    if (!selectedSchoolId) {
+      if (isAdmin) {
+        if (schools.length > 0) {
+          setSelectedSchoolId("all");
+        }
+      } else {
+        const userSchool = getUserSchoolFromSession();
+        if (userSchool?.id) {
+          setSelectedSchoolId(String(userSchool.id));
+        } else if (schools.length > 0) {
+          setSelectedSchoolId(String(schools[0].id));
+        }
+      }
     }
   }, [schools, selectedSchoolId, isAdmin]);
 
@@ -192,11 +208,14 @@ export default function InventoryOverviewPage() {
 
   const selectedSchoolName = useMemo(() => {
     if (selectedSchoolId === "all") return "All Schools";
-    return (
-      schools.find((s) => String(s.id) === String(selectedSchoolId))
-        ?.schoolName || ""
-    );
-  }, [schools, selectedSchoolId]);
+    const found = schools.find((s) => String(s.id) === String(selectedSchoolId));
+    if (found?.schoolName) return found.schoolName;
+    if (!isAdmin) {
+      const userSchool = getUserSchoolFromSession();
+      if (userSchool?.name) return userSchool.name;
+    }
+    return "";
+  }, [schools, selectedSchoolId, isAdmin]);
 
   const selectedSchool = useMemo(() => {
     if (selectedSchoolId === "all") return null;

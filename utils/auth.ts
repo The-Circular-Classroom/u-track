@@ -110,6 +110,21 @@ export function getRoleFromSession(): string {
   }
 }
 
+export function getUserProfileFromSession(): any | null {
+  try {
+    if (typeof window === 'undefined') return null
+    const profile = sessionStorage.getItem('userProfile')
+    return profile ? JSON.parse(profile) : null
+  } catch {
+    return null
+  }
+}
+
+export function getUserSchoolFromSession(): { id: number; name: string } | null {
+  const profile = getUserProfileFromSession()
+  return profile?.school || null
+}
+
 export async function fetchUserProfile(): Promise<any> {
   try {
     const res = await fetch('/api/users/me')

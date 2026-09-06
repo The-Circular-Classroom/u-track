@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { useState } from 'react';
 import Image from 'next/image';
+import { getColourDisplayName } from '@/utils/colourDisplayName';
 
 export default function ItemTypeCard({ itemType, isAdmin, onClick }) {
   const [imageError, setImageError] = useState(false);
@@ -147,7 +147,7 @@ export default function ItemTypeCard({ itemType, isAdmin, onClick }) {
                 key={`${c.colorName}-${index}`}
                 className={`w-5 h-5 rounded-full ${c?.colorHex ? '' : getColorClass(c.colorName)}`}
                 style={dotStyle(c)}
-                title={c.colorName}
+                title={getColourDisplayName(c.colorName, isAdmin)}
               />
             ))}
             {remainingColors > 0 && <span className="text-xs font-medium text-gray-500">+{remainingColors}</span>}

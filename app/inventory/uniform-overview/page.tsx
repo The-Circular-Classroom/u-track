@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { getRoleFromSession } from '@/utils/auth'
+import { getRoleFromSession, getUserSchoolFromSession } from '@/utils/auth'
 import { groupCategoryName, byCategoryOrder, CATEGORY_DISPLAY_LABELS, getSubCategoryOrder, CATEGORY_ROWS } from '@/utils/categoryOrder'
 import { getColourDisplayName } from '@/utils/colourDisplayName'
 import {
@@ -255,7 +255,11 @@ export default function UniformOverviewPage() {
   const fetchBalances = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/inventory/balance')
+      const userSchool = getUserSchoolFromSession()
+      const url = (!isAdmin && userSchool?.id)
+        ? `/api/inventory/balance?schoolId=${userSchool.id}`
+        : '/api/inventory/balance'
+      const response = await fetch(url)
       if (!response.ok) throw new Error('Failed to fetch inventory data')
 
       const { payload } = await parseApiResponse(response)
@@ -304,13 +308,22 @@ export default function UniformOverviewPage() {
   }, [rows])
 
   useEffect(() => {
+    if (!isAdmin) {
+      const userSchool = getUserSchoolFromSession()
+      if (userSchool?.id) {
+        if (selectedSchoolId !== String(userSchool.id)) {
+          setSelectedSchoolId(String(userSchool.id))
+        }
+        return
+      }
+    }
     if (
       schools.length > 0 &&
       (!selectedSchoolId || (selectedSchoolId !== 'all' && !schools.some((s) => String(s.id) === String(selectedSchoolId))))
     ) {
       setSelectedSchoolId(String(schools[0].id))
     }
-  }, [schools, selectedSchoolId])
+  }, [schools, selectedSchoolId, isAdmin])
 
   const showSchoolSelector = isAdmin && schools.length > 1
 
@@ -360,10 +373,21 @@ export default function UniformOverviewPage() {
     return selectedColor.items || []
   }, [selectedColor])
 
-  const selectedSchool = useMemo(
-    () => schools.find((s) => String(s.id) === String(selectedSchoolId)),
-    [schools, selectedSchoolId]
-  )
+  const selectedSchool = useMemo(() => {
+    const found = schools.find((s) => String(s.id) === String(selectedSchoolId))
+    if (found) return found
+    if (!isAdmin) {
+      const userSchool = getUserSchoolFromSession()
+      if (userSchool?.id) {
+        return {
+          id: userSchool.id,
+          schoolName: userSchool.name,
+          logoUrl: resolveSchoolLogoUrl(userSchool.logoUrl, userSchool.id),
+        }
+      }
+    }
+    return null
+  }, [schools, selectedSchoolId, isAdmin])
 
   const handleCardClick = (card: any) => {
     const cols = buildColors(card.items, isAdmin)

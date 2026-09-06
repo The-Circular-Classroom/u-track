@@ -118,17 +118,40 @@ export function buildColorGroups(rows) {
  * Non-admin: fetches from /api/school/psg.
  */
 export async function resolveSchool(apiUrl, isAdmin) {
+  if (!isAdmin) {
+    let userSchoolId = null;
+    try {
+      const profile = sessionStorage.getItem("userProfile");
+      if (profile) {
+        const parsed = JSON.parse(profile);
+        userSchoolId = parsed?.school?.id || null;
+      }
+    } catch (_) {}
+
+    try {
+      const stored = sessionStorage.getItem("_invSelectedSchool");
+      if (stored) {
+        const parsedStored = JSON.parse(stored);
+        if (!userSchoolId || String(parsedStored.id) === String(userSchoolId)) {
+          return parsedStored;
+        }
+      }
+    } catch (_) {}
+
+    const res = await fetch("/api/school/psg");
+    if (!res.ok) throw new Error("Failed to fetch school");
+    const result = await res.json();
+    const schoolData = result.data || result;
+    try {
+      sessionStorage.setItem("_invSelectedSchool", JSON.stringify(schoolData));
+    } catch (_) {}
+    return schoolData;
+  }
+
   try {
     const stored = sessionStorage.getItem("_invSelectedSchool");
     if (stored) return JSON.parse(stored);
   } catch (_) { }
-
-  if (!isAdmin) {
-    const res = await fetch("/api/school/psg");
-    if (!res.ok) throw new Error("Failed to fetch school");
-    const result = await res.json();
-    return result.data || result;
-  }
 
   throw new Error("No school selected. Please go back to Schools and select a school.");
 }

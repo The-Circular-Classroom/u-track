@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getRoleFromSession } from "@/utils/auth";
+import { getRoleFromSession, getUserSchoolFromSession } from "@/utils/auth";
 import { getCategoryOrder, getSubCategoryOrder } from "@/utils/categoryOrder";
 import { getUniformImageUrl } from "@/lib/inventory/uniformImageUrl";
 import { resolveSchoolLogoUrl } from "@/lib/school/logo";
@@ -82,12 +82,20 @@ export default function SchoolItemTypesContent() {
     try {
       const stored = sessionStorage.getItem("_invSelectedSchool");
       if (stored) {
-        setSchool(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (!isAdmin) {
+          const userSchool = getUserSchoolFromSession();
+          if (userSchool?.id && String(parsed.id) !== String(userSchool.id)) {
+            router.replace("/inventory/items");
+            return;
+          }
+        }
+        setSchool(parsed);
         return;
       }
     } catch (_) {}
     router.replace("/inventory/items");
-  }, [role, router]);
+  }, [role, router, isAdmin]);
 
   const fetchItemTypes = useCallback(async () => {
     if (!school?.id) return;
