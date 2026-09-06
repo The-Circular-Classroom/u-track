@@ -198,6 +198,11 @@ export default function InventoryOverviewPage() {
     );
   }, [schools, selectedSchoolId]);
 
+  const selectedSchool = useMemo(() => {
+    if (selectedSchoolId === "all") return null;
+    return schools.find((s) => String(s.id) === String(selectedSchoolId)) || null;
+  }, [schools, selectedSchoolId]);
+
   // Weight apportioned by piece share of the total collection (mirrors the
   // analytics school view, which has no true per-piece weight).
   const kgFor = useCallback(
