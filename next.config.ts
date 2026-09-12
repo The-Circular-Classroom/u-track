@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
   },
 
   serverExternalPackages: ['pdfkit'],
+
+  async rewrites() {
+    return [
+      {
+        source: '/manifest.webmanifest',
+        destination: '/manifest.json',
+      },
+    ]
+  },
 }
 
 export default nextConfig

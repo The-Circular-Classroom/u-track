@@ -23,6 +23,8 @@ const PUBLIC_PATHS = [
   '/api/collection/overall-donations-by-category',
   '/robots.txt',
   '/sitemap.xml',
+  '/manifest.json',
+  '/manifest.webmanifest',
 ]
 
 function getDefaultRouteForRole(role: string): string {
@@ -198,10 +200,10 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - robots.txt, sitemap.xml (metadata routes)
+     * - robots.txt, sitemap.xml, manifest.json, manifest.webmanifest (metadata routes)
      * - Static assets (svg, png, jpg, jpeg, gif, webp)
      */
-    '/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|robots\\.txt|sitemap\\.xml|manifest\\.json|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
 
