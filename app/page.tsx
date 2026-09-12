@@ -4,13 +4,27 @@ import React, { useState, useEffect } from 'react'
 import { Box, Typography, Card, CardActionArea, CardContent, Grid, Chip } from '@mui/material'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { getRoleFromSession, setTokensInSession, getTokensFromSession } from '@/utils/auth'
-import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getRoleFromSession } from '@/utils/auth'
+import { getPublicWebsiteConfig, redirectToPublicWebsiteStage } from '@/lib/auth/public-website'
+
+interface DashboardCard {
+  title: string
+  description: string
+  imageSrc: string
+  href?: string
+  onClick?: () => void | Promise<any>
+  requiredRoles: string[]
+  comingSoon?: boolean
+  badge?: {
+    label: string
+    color?: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
+    variant?: 'filled' | 'outlined'
+  }
+}
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
-
-  const publicWebsiteDomain = "d269lzog3meaz1.cloudfront.net"
+  const publicWebsiteConfig = getPublicWebsiteConfig()
 
   useEffect(() => {
     setMounted(true)
@@ -30,7 +44,7 @@ export default function Home() {
         ? 'Good Afternoon!'
         : 'Good Evening!'
 
-  const cards = [
+  const cards: DashboardCard[] = [
     {
       title: 'School Dashboard',
       description: 'Data and Insights to explore your school\'s uniform collection, reuse and impact',
@@ -75,25 +89,27 @@ export default function Home() {
       requiredRoles: ['TCC_ADMIN'],
     },
     {
-      title: 'Website Management',
-      description: 'Manage the contents of the public website',
+      title: 'Website Management (Production)',
+      description: 'Manage the contents of the live public website',
       imageSrc: '/images/Graphic_Website Management.jpg',
-      onClick: async () => {
-        let supabase = createSupabaseBrowserClient()
-        let { data: { session } } = await supabase.auth.getSession()
-        let accessToken = session?.access_token || getTokensFromSession().access_token
-        let refreshToken = session?.refresh_token || getTokensFromSession().refresh_token
-        if (session) {
-          setTokensInSession(session.access_token, session.refresh_token)
-        }
-        if (accessToken && refreshToken) {
-          window.open(
-            `https://${publicWebsiteDomain}/admin/auth/callback?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`,
-            '_self',
-            'noopener,noreferrer'
-          )
-        }
+      badge: {
+        label: 'Production',
+        color: 'primary',
+        variant: 'outlined',
       },
+      onClick: () => redirectToPublicWebsiteStage(publicWebsiteConfig.prodUrl),
+      requiredRoles: ['TCC_ADMIN'],
+    },
+    {
+      title: 'Website Management (Staging)',
+      description: 'Manage and preview contents on the staging public website',
+      imageSrc: '/images/Graphic_Website Management.jpg',
+      badge: {
+        label: 'Staging',
+        color: 'warning',
+        variant: 'outlined',
+      },
+      onClick: () => redirectToPublicWebsiteStage(publicWebsiteConfig.stagingUrl),
       requiredRoles: ['TCC_ADMIN'],
     },
     {
@@ -173,8 +189,17 @@ export default function Home() {
                           className="object-contain"
                         />
                       </Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         {card.title}
+                        {card.badge && (
+                          <Chip
+                            label={card.badge.label}
+                            size="small"
+                            variant={card.badge.variant || 'outlined'}
+                            color={card.badge.color || 'default'}
+                            sx={{ fontWeight: 600, height: 22, fontSize: '0.75rem' }}
+                          />
+                        )}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
                         {card.description}
@@ -193,8 +218,17 @@ export default function Home() {
                           className="object-contain"
                         />
                       </Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         {card.title}
+                        {card.badge && (
+                          <Chip
+                            label={card.badge.label}
+                            size="small"
+                            variant={card.badge.variant || 'outlined'}
+                            color={card.badge.color || 'default'}
+                            sx={{ fontWeight: 600, height: 22, fontSize: '0.75rem' }}
+                          />
+                        )}
                         {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
