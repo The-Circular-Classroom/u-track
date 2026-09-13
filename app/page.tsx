@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Box, Typography, Card, CardActionArea, CardContent, Grid, Chip } from '@mui/material'
+import { Box, Typography, Card, CardActionArea, CardContent, Grid, Chip, Skeleton } from '@mui/material'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { getRoleFromSession } from '@/utils/auth'
+import { getRoleFromSession, useUserRole } from '@/utils/auth'
 import { getPublicWebsiteConfig, redirectToPublicWebsiteStage } from '@/lib/auth/public-website'
 
 interface DashboardCard {
@@ -25,6 +25,7 @@ interface DashboardCard {
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const publicWebsiteConfig = getPublicWebsiteConfig()
+  const userRole = useUserRole()
 
   useEffect(() => {
     setMounted(true)
@@ -35,7 +36,7 @@ export default function Home() {
   }
 
   const hour = new Date().getHours()
-  const userRole = getRoleFromSession() || 'UNKNOWN'
+
 
   const greeting =
     hour > 6 && hour < 12
@@ -127,6 +128,7 @@ export default function Home() {
     return requiredRoles.includes(userRole)
   }
 
+  const isResolvingRole = userRole === 'UNKNOWN'
   const visibleCards = cards.filter((card) => canAccessCard(card.requiredRoles))
 
   return (
@@ -147,11 +149,9 @@ export default function Home() {
       </Box>
 
       <Grid container spacing={4}>
-        {visibleCards.map((card, index) => {
-          const isClickable = (Boolean(card.href) || Boolean(card.onClick)) && !card.comingSoon
-
-          return (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+        {isResolvingRole ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
               <Card
                 elevation={0}
                 sx={{
@@ -159,89 +159,117 @@ export default function Home() {
                   border: '1px solid #e0e0e0',
                   boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
                   height: '100%',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  ...(isClickable && {
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0px 8px 30px rgba(0, 0, 0, 0.1)',
-                    },
-                  }),
+                  p: 2,
                 }}
               >
-                {isClickable ? (
-                  <CardActionArea
-                    {...(card.href ? {
-                      component: card.href.startsWith('http') ? 'a' : NextLink,
-                      href: card.href,
-                      ...(card.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})
-                    } : {
-                      onClick: card.onClick
-                    })}
-                    sx={{ height: '100%', p: 2 }}
-                  >
-                    <CardContent>
-                      <Box sx={{ width: 48, height: 48, position: 'relative', mb: 2 }}>
-                        <Image
-                          src={card.imageSrc}
-                          alt={card.title}
-                          width={48}
-                          height={48}
-                          className="object-contain"
-                        />
-                      </Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                        {card.title}
-                        {card.badge && (
-                          <Chip
-                            label={card.badge.label}
-                            size="small"
-                            variant={card.badge.variant || 'outlined'}
-                            color={card.badge.color || 'default'}
-                            sx={{ fontWeight: 600, height: 22, fontSize: '0.75rem' }}
-                          />
-                        )}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
-                        {card.description}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                ) : (
-                  <Box sx={{ height: '100%', p: 2, cursor: card.comingSoon ? 'default' : 'default' }}>
-                    <CardContent>
-                      <Box sx={{ width: 48, height: 48, position: 'relative', mb: 2 }}>
-                        <Image
-                          src={card.imageSrc}
-                          alt={card.title}
-                          width={48}
-                          height={48}
-                          className="object-contain"
-                        />
-                      </Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                        {card.title}
-                        {card.badge && (
-                          <Chip
-                            label={card.badge.label}
-                            size="small"
-                            variant={card.badge.variant || 'outlined'}
-                            color={card.badge.color || 'default'}
-                            sx={{ fontWeight: 600, height: 22, fontSize: '0.75rem' }}
-                          />
-                        )}
-                        {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
-                        {card.description}
-                      </Typography>
-                    </CardContent>
-                  </Box>
-                )}
+                <CardContent>
+                  <Skeleton variant="rounded" width={48} height={48} sx={{ mb: 2, borderRadius: 2 }} />
+                  <Skeleton variant="text" width="60%" height={28} sx={{ mb: 1 }} />
+                  <Skeleton variant="text" width="95%" height={20} />
+                  <Skeleton variant="text" width="75%" height={20} />
+                </CardContent>
               </Card>
             </Grid>
-          )
-        })}
+          ))
+        ) : (
+          visibleCards.map((card, index) => {
+            const isClickable = (Boolean(card.href) || Boolean(card.onClick)) && !card.comingSoon
+
+            return (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    borderRadius: 4,
+                    border: '1px solid #e0e0e0',
+                    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+                    height: '100%',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    ...(isClickable && {
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0px 8px 30px rgba(0, 0, 0, 0.1)',
+                      },
+                    }),
+                  }}
+                >
+                  {isClickable ? (
+                    <CardActionArea
+                      {...(card.href ? {
+                        component: card.href.startsWith('http') ? 'a' : NextLink,
+                        href: card.href,
+                        prefetch: false,
+                        ...(card.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})
+                      } : {
+                        onClick: card.onClick
+                      })}
+                      sx={{ height: '100%', p: 2 }}
+                    >
+                      <CardContent>
+                        <Box sx={{ width: 48, height: 48, position: 'relative', mb: 2 }}>
+                          <Image
+                            src={card.imageSrc}
+                            alt={card.title}
+                            width={48}
+                            height={48}
+                            className="object-contain"
+                          />
+                        </Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                          {card.title}
+                          {card.badge && (
+                            <Chip
+                              label={card.badge.label}
+                              size="small"
+                              variant={card.badge.variant || 'outlined'}
+                              color={card.badge.color || 'default'}
+                              sx={{ fontWeight: 600, height: 22, fontSize: '0.75rem' }}
+                            />
+                          )}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
+                          {card.description}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  ) : (
+                    <Box sx={{ height: '100%', p: 2, cursor: card.comingSoon ? 'default' : 'default' }}>
+                      <CardContent>
+                        <Box sx={{ width: 48, height: 48, position: 'relative', mb: 2 }}>
+                          <Image
+                            src={card.imageSrc}
+                            alt={card.title}
+                            width={48}
+                            height={48}
+                            className="object-contain"
+                          />
+                        </Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                          {card.title}
+                          {card.badge && (
+                            <Chip
+                              label={card.badge.label}
+                              size="small"
+                              variant={card.badge.variant || 'outlined'}
+                              color={card.badge.color || 'default'}
+                              sx={{ fontWeight: 600, height: 22, fontSize: '0.75rem' }}
+                            />
+                          )}
+                          {card.comingSoon && <Chip label="Coming Soon!" size="small" variant="outlined" color="success" />}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.5 }}>
+                          {card.description}
+                        </Typography>
+                      </CardContent>
+                    </Box>
+                  )}
+                </Card>
+              </Grid>
+            )
+          })
+        )}
       </Grid>
     </Box>
+
   )
 }

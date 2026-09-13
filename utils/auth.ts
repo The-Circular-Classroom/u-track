@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export function safeParseJwt(token: string | null) {
@@ -125,29 +126,79 @@ export function getUserSchoolFromSession(): { id: number; name: string; logoUrl?
   return profile?.school || null
 }
 
+let fetchProfilePromise: Promise<any> | null = null
+
 export async function fetchUserProfile(): Promise<any> {
-  try {
-    const res = await fetch('/api/users/me')
-    if (res.ok) {
-      const data = await res.json()
-      sessionStorage.setItem('userProfile', JSON.stringify(data))
-      const legacyRole = mapRoleToLegacy(data.role)
-      setRoleInSession(legacyRole)
-      if (data.school) {
-        // Emit school-changed event for header
-        window.dispatchEvent(
-          new CustomEvent('school-changed', {
-            detail: { schoolName: data.school.name, logoUrl: `/api/school/${data.school.id}/logo` }
-          })
-        )
-      }
-      return data
-    }
-  } catch (err) {
-    console.error('Failed to fetch user profile:', err)
+  if (fetchProfilePromise) {
+    return fetchProfilePromise
   }
-  return null
+
+  fetchProfilePromise = (async () => {
+    try {
+      const res = await fetch('/api/users/me')
+      if (res.ok) {
+        const data = await res.json()
+        sessionStorage.setItem('userProfile', JSON.stringify(data))
+        const legacyRole = mapRoleToLegacy(data.role)
+        setRoleInSession(legacyRole)
+        if (data.school) {
+          // Emit school-changed event for header
+          window.dispatchEvent(
+            new CustomEvent('school-changed', {
+              detail: { schoolName: data.school.name, logoUrl: `/api/school/${data.school.id}/logo` }
+            })
+          )
+        }
+        return data
+      }
+    } catch (err) {
+      console.error('Failed to fetch user profile:', err)
+    } finally {
+      fetchProfilePromise = null
+    }
+    return null
+  })()
+
+  return fetchProfilePromise
 }
+
+export function subscribeAuth(onStoreChange: () => void) {
+  if (typeof window === 'undefined') return () => {}
+
+  const onAuthChanged = () => onStoreChange()
+  const onVisibility = () => {
+    if (document.visibilityState === 'visible') onStoreChange()
+  }
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === 'userRole' || e.key === 'userProfile' || e.key === null) {
+      onStoreChange()
+    }
+  }
+
+  window.addEventListener('auth-changed', onAuthChanged)
+  window.addEventListener('visibilitychange', onVisibility)
+  window.addEventListener('storage', onStorage)
+
+  return () => {
+    window.removeEventListener('auth-changed', onAuthChanged)
+    window.removeEventListener('visibilitychange', onVisibility)
+    window.removeEventListener('storage', onStorage)
+  }
+}
+
+export function getRoleSnapshot(): string {
+  if (typeof window === 'undefined') return 'UNKNOWN'
+  return getRoleFromSession() || 'UNKNOWN'
+}
+
+export function getRoleServerSnapshot(): string {
+  return 'UNKNOWN'
+}
+
+export function useUserRole(): string {
+  return useSyncExternalStore(subscribeAuth, getRoleSnapshot, getRoleServerSnapshot)
+}
+
 
 export async function clearAuthSession() {
   try {
@@ -165,3 +216,4 @@ export async function clearAuthSession() {
     // ignore
   }
 }
+

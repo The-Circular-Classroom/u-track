@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import SnackbarAlert from './SnackbarAlert'
-import { getRoleFromSession, clearAuthSession, fetchUserProfile, mapRoleFromLegacy } from '@/utils/auth'
+import { getRoleFromSession, clearAuthSession, fetchUserProfile, mapRoleFromLegacy, getUserProfileFromSession } from '@/utils/auth'
 
 const APPS = [
   {
@@ -60,15 +60,24 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const [role, setRole] = useState('UNKNOWN')
+  const [role, setRole] = useState(() => getRoleFromSession())
   const [mounted, setMounted] = useState(false)
 
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('Something went wrong')
   const [severity, setSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('error')
-  const [userFullName, setUserFullName] = useState('Guest')
-  const [schoolLogoUrl, setSchoolLogoUrl] = useState<string | null>(null)
-  const [schoolName, setSchoolName] = useState('')
+  const [userFullName, setUserFullName] = useState(() => {
+    const profile = getUserProfileFromSession()
+    return profile?.fullName || 'Guest'
+  })
+  const [schoolLogoUrl, setSchoolLogoUrl] = useState<string | null>(() => {
+    const profile = getUserProfileFromSession()
+    return profile?.school?.id ? `/api/school/${profile.school.id}/logo` : null
+  })
+  const [schoolName, setSchoolName] = useState(() => {
+    const profile = getUserProfileFromSession()
+    return profile?.school?.name || ''
+  })
 
   useEffect(() => {
     setMounted(true)
@@ -113,6 +122,16 @@ export default function Header() {
 
   const retrieveUserDetails = useCallback(async () => {
     try {
+      const cachedProfile = getUserProfileFromSession()
+      if (cachedProfile) {
+        setUserFullName(cachedProfile.fullName || 'User')
+        if (cachedProfile.school) {
+          setSchoolName(cachedProfile.school.name || '')
+          setSchoolLogoUrl(`/api/school/${cachedProfile.school.id}/logo`)
+        }
+        setRole(getRoleFromSession())
+      }
+
       const profile = await fetchUserProfile()
       if (profile) {
         setUserFullName(profile.fullName || 'User')
@@ -121,7 +140,7 @@ export default function Header() {
           setSchoolLogoUrl(`/api/school/${profile.school.id}/logo`)
         }
         setRole(getRoleFromSession())
-      } else {
+      } else if (!cachedProfile) {
         setUserFullName('Guest')
         setRole('UNKNOWN')
         if (!pathname?.startsWith('/auth') && pathname !== '/') {
@@ -135,7 +154,7 @@ export default function Header() {
       setSeverity('error')
       setOpen(true)
     }
-  }, [router, pathname, hideHeaderUI])
+  }, [router, pathname])
 
   useEffect(() => {
     retrieveUserDetails()

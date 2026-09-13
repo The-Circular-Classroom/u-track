@@ -37,7 +37,14 @@ function LoginForm() {
         const forcePasswordChange = session.user?.app_metadata?.force_password_change === true
         if (forcePasswordChange) {
           router.replace('/auth/change-password')
-        } else if (continuePath) {
+          return
+        }
+
+        // Pre-populate profile and notify components before navigating to landing page
+        await fetchUserProfile()
+        window.dispatchEvent(new Event('auth-changed'))
+
+        if (continuePath) {
           router.replace(continuePath)
         } else {
           router.replace('/')
